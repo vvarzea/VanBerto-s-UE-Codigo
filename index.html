@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Europa Unida — Missões</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --gold:#f5c518;--gold2:#ffd700;--gold3:#e8b800;
+      --ok:#16a34a;--ok-bg:rgba(22,163,74,0.12);--ok-border:rgba(22,163,74,0.4);
+      --err:#c0392b;--err-bg:rgba(192,57,43,0.12);--err-border:rgba(192,57,43,0.4);
+      --warn:#b45309;--warn-bg:rgba(180,83,9,0.1);--warn-border:rgba(180,83,9,0.35);
+      --radius-sm:4px;--radius-md:6px;--radius-lg:6px;
+      --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    }
+
+    /* ── MODO CLARO (padrão) ── */
+    body{
+      --ink:#0a1f3c;--ink2:#1a3660;--ink3:#24487a;
+      --dark:#050f1f;--dark2:#0a1f3c;--dark3:#071428;
+      --border:#1a3660;--border2:#24487a;
+      --muted:#4a6fa5;
+
+      --surface:#f0f5fb;
+      --surface2:#e8f0fa;
+      --surface-border:#b0c4de;
+      --surface-text:#0a1f3c;
+      --surface-text2:#1a3660;
+
+      --card-bg:linear-gradient(155deg,#ffffff,#eef4fb);
+      --card-border:#b0c4de;
+      --card-shadow:rgba(10,31,60,0.10);
+
+      --sidebar-bg:linear-gradient(155deg,#1a3660,#0d2247);
+      --sidebar-text:#ffd700;
+      --sidebar-btn:rgba(255,255,255,0.08);
+      --sidebar-btn-border:rgba(255,255,255,0.18);
+
+      --grid-bg:linear-gradient(135deg,#dce6f0,#eef4fb);
+      --grid-border:#b0c4de;
+      --cell-bg:rgba(255,255,255,0.9);
+      --cell-border:rgba(26,54,96,0.15);
+
+      --cmd-bg:linear-gradient(180deg,#ffffff,#dce6f0);
+      --cmd-border:rgba(26,54,96,0.25);
+      --cmd-text:#0a1f3c;
+      --cmd-shadow:rgba(10,31,60,0.12);
+
+      --queue-bg:rgba(210,225,240,0.8);
+      --queue-border:rgba(26,54,96,0.18);
+      --queue-cmd-bg:rgba(26,54,96,0.07);
+      --queue-cmd-text:#0a1f3c;
+
+      --feedback-info-bg:rgba(26,54,96,0.06);
+      --feedback-info-border:rgba(26,54,96,0.22);
+      --feedback-info-text:#1a3660;
+
+      --popup-overlay:rgba(10,31,60,0.55);
+      --popup-bg:linear-gradient(155deg,#ffffff,#eef4fb);
+      --popup-text:#0a1f3c;
+      --popup-subtext:#1a3660;
+      --popup-fact-bg:rgba(26,54,96,0.05);
+      --popup-fact-border:rgba(26,54,96,0.18);
+    }
+
+    /* ── MODO ESCURO ── */
+    body.dark{
+      --surface:#050f1f;
+      --surface2:#071428;
+      --surface-border:#1a3660;
+      --surface-text:#ffd700;
+      --surface-text2:#f5c518;
+
+      --card-bg:linear-gradient(155deg,rgba(10,31,60,0.95),rgba(5,15,31,0.98));
+      --card-border:#1a3660;
+      --card-shadow:rgba(0,0,0,0.5);
+
+      --sidebar-bg:linear-gradient(155deg,rgba(10,31,60,0.9),rgba(5,15,31,0.95));
+      --sidebar-text:#ffd700;
+      --sidebar-btn:rgba(245,197,24,0.06);
+      --sidebar-btn-border:rgba(245,197,24,0.2);
+
+      --grid-bg:linear-gradient(135deg,#0a1f3c,#071428);
+      --grid-border:#1a3660;
+      --cell-bg:rgba(238,242,247,0.05);
+      --cell-border:rgba(245,197,24,0.18);
+
+      --cmd-bg:linear-gradient(180deg,rgba(10,31,60,0.9),rgba(5,15,31,0.95));
+      --cmd-border:rgba(245,197,24,0.28);
+      --cmd-text:#ffd700;
+      --cmd-shadow:rgba(0,0,0,0.4);
+
+      --queue-bg:rgba(5,15,31,0.7);
+      --queue-border:rgba(245,197,24,0.22);
+      --queue-cmd-bg:rgba(245,197,24,0.09);
+      --queue-cmd-text:#ffd700;
+
+      --feedback-info-bg:rgba(26,54,96,0.12);
+      --feedback-info-border:rgba(26,54,96,0.35);
+      --feedback-info-text:#f5c518;
+
+      --popup-overlay:rgba(5,15,31,0.85);
+      --popup-bg:linear-gradient(155deg,rgba(10,31,60,0.98),rgba(5,15,31,0.99));
+      --popup-text:#ffd700;
+      --popup-subtext:#f5c518;
+      --popup-fact-bg:rgba(245,197,24,0.07);
+      --popup-fact-border:rgba(245,197,24,0.22);
+
+      --muted:#4a6fa5;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;font-family:'Lora',Georgia,serif;
+      background:var(--surface);color:var(--surface-text);
+      min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s;
+    }
+    body.dark{background:var(--dark);animation:euBg 8s ease-in-out infinite;}
+    @keyframes euBg{
+      0%,100%{background:radial-gradient(ellipse 80% 70% at 50% 30%,rgba(26,54,96,0.25) 0%,var(--dark) 65%);}
+      40%{background:radial-gradient(ellipse 75% 65% at 51% 28%,rgba(245,197,24,0.08) 0%,var(--dark) 65%);}
+      70%{background:radial-gradient(ellipse 82% 72% at 49% 32%,rgba(26,54,96,0.18) 0%,var(--dark) 65%);}
+    }
+    h1,h2,h3,h4{font-family:'Cinzel',serif;}
+    .bg-layer,.wave-layer{display:none;}
+    #app{width:100%;max-width:1120px;padding:14px;margin:0 auto;display:flex;flex-direction:column;gap:14px;}
+
+    header{
+      background:var(--noise),linear-gradient(135deg,#1a3660 0%,#0d2247 100%);
+      border-radius:var(--radius-lg);padding:12px 20px;display:flex;
+      justify-content:space-between;align-items:center;gap:10px;
+      border:2px solid var(--gold3);
+      box-shadow:4px 4px 0 rgba(5,15,31,0.7),0 0 40px rgba(245,197,24,0.1);
+      flex-wrap:wrap;
+    }
+    header h1{
+      margin:0;font-size:1.4rem;font-weight:900;display:flex;align-items:center;gap:8px;
+      color:var(--gold2);text-shadow:0 0 18px rgba(255,215,0,0.4);
+      font-family:'Cinzel',serif;letter-spacing:.04em;
+    }
+    header p{margin:2px 0 0;font-size:.82rem;color:var(--gold);font-style:italic;}
+    .logo-wrap{width:40px;height:40px;display:block;flex-shrink:0;filter:drop-shadow(0 2px 8px rgba(255,215,0,.5));}
+    .header-btns{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+
+    .btn{
+      border:2px solid var(--surface-border);
+      border-radius:3px;padding:7px 14px;font-size:.82rem;
+      display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-weight:700;
+      font-family:'Cinzel',serif;letter-spacing:.03em;
+      background:var(--card-bg);
+      color:var(--surface-text);
+      box-shadow:3px 3px 0 rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,0.3);
+      transition:background .12s,transform .08s,box-shadow .08s;
+    }
+    .btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 rgba(0,0,0,0.25);}
+    .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(0,0,0,0.2);}
+    .btn.secondary{background:linear-gradient(180deg,#1a3660,#0d2247);color:var(--gold);border-color:var(--gold3);box-shadow:3px 3px 0 rgba(0,0,0,0.4);}
+    .btn.secondary:hover{background:linear-gradient(180deg,#24487a,#1a3660);color:var(--gold2);}
+    .btn.small{font-size:.72rem;padding:4px 10px;}
+
+    .screen{
+      background:var(--surface2);
+      border-radius:var(--radius-lg);border:2px solid var(--surface-border);padding:14px;
+      box-shadow:4px 4px 0 var(--card-shadow),0 0 50px rgba(245,197,24,0.04);
+      position:relative;
+    }
+    .screen::before{content:'★';position:absolute;top:8px;left:12px;font-size:14px;color:var(--gold);opacity:.35;font-family:serif;}
+    .screen::after{content:'★';position:absolute;bottom:8px;right:12px;font-size:14px;color:var(--gold);opacity:.35;transform:rotate(180deg);font-family:serif;}
+    .hidden{display:none!important;}
+    .active{}
+
+    .menu-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;align-items:stretch;}
+    @media(max-width:900px){.menu-layout{grid-template-columns:1fr;}}
+
+    .hero{
+      background:linear-gradient(155deg,#1a3660,#0d2247);
+      border-radius:var(--radius-lg);padding:16px;border:2px solid var(--gold3);
+      position:relative;overflow:hidden;display:flex;flex-direction:column;gap:10px;justify-content:space-between;
+      box-shadow:inset 0 1px 0 rgba(245,197,24,0.1);
+    }
+    .hero-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;position:relative;z-index:1;}
+    .hero-text{flex:1 1 240px;}
+    .hero-text h2{margin:0;font-size:1.45rem;font-weight:900;color:var(--gold2);letter-spacing:.02em;text-shadow:0 0 18px rgba(255,215,0,0.3);font-family:'Cinzel',serif;}
+    .hero-text p{margin:4px 0 0;font-size:.85rem;color:var(--gold);font-style:italic;}
+    .hero-robot-wrap{width:190px;height:190px;position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .hero-glow{position:absolute;width:170%;height:170%;border-radius:999px;
+      background:radial-gradient(circle,rgba(245,197,24,0.35),transparent 60%);opacity:.3;filter:blur(18px);animation:heroGlow 5s ease-in-out infinite alternate;}
+    .hero-robot{width:160px;height:160px;position:relative;z-index:1;animation:float 3.3s ease-in-out infinite;}
+    .hero-robot svg{width:160px;height:160px;display:block;}
+    @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+    @keyframes heroGlow{0%{opacity:.2;transform:scale(1);}100%{opacity:.45;transform:scale(1.1);}}
+    .hero-desc{font-size:.78rem;color:var(--gold);padding-top:6px;border-top:1px solid rgba(245,197,24,0.25);position:relative;z-index:1;font-style:italic;}
+    .pill{padding:3px 10px;border-radius:2px;border:1px solid var(--surface-border);font-size:.72rem;color:var(--surface-text2);background:rgba(26,54,96,0.07);font-family:'Cinzel',serif;}
+
+    .menu-header h2{margin:0;font-size:1.05rem;font-weight:700;color:var(--surface-text);letter-spacing:.03em;font-family:'Cinzel',serif;}
+    .menu-header p{margin:4px 0 0;font-size:.82rem;color:var(--surface-text2);font-style:italic;}
+
+    .cycle-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px;}
+    .cycle-card{
+      border-radius:var(--radius-md);padding:13px;cursor:pointer;
+      transition:transform .15s,box-shadow .15s;
+      display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden;
+      background:var(--card-bg);
+      border:2px solid var(--card-border);
+      box-shadow:3px 3px 0 var(--card-shadow);
+    }
+    .cycle-card:hover{transform:translateY(-2px) scale(1.01);box-shadow:5px 5px 0 var(--card-shadow),0 0 20px rgba(245,197,24,0.1);}
+    .cycle-card--1c{border-top:3px solid var(--gold2)!important;}
+    .cycle-card--2c{border-top:3px solid var(--gold)!important;}
+    .cycle-card--3c{border-top:3px solid var(--gold3)!important;}
+    .cycle-title{font-weight:700;display:flex;align-items:center;gap:6px;font-size:.95rem;color:var(--surface-text);font-family:'Cinzel',serif;}
+    .cycle-sub{font-size:.8rem;color:var(--surface-text2);font-style:italic;}
+    .chip-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
+    .chip{border-radius:2px;border:1px solid var(--surface-border);padding:2px 8px;font-size:.72rem;background:rgba(26,54,96,0.06);color:var(--surface-text2);font-family:'Cinzel',serif;}
+
+    .back-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
+    .breadcrumbs{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--surface-text2);}
+    .small-text{font-size:.75rem;color:var(--surface-text2);font-style:italic;}
+
+    .theme-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:10px;}
+    .theme-card{
+      background:var(--card-bg);
+      border-radius:var(--radius-md);padding:13px;border:2px solid var(--card-border);cursor:pointer;
+      display:flex;flex-direction:column;gap:4px;
+      transition:transform .15s,box-shadow .15s;
+      position:relative;overflow:hidden;
+      box-shadow:3px 3px 0 var(--card-shadow);
+    }
+    .theme-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.35;}
+    .theme-card:hover{transform:translateY(-2px);border-color:var(--gold3);box-shadow:5px 5px 0 var(--card-shadow),0 0 22px rgba(245,197,24,0.12);}
+    .theme-emoji{font-size:1.6rem;margin-bottom:2px;}
+    .theme-title{font-weight:700;font-size:.95rem;color:var(--surface-text);font-family:'Cinzel',serif;}
+    .theme-sub{font-size:.78rem;color:var(--surface-text2);font-style:italic;}
+    .theme-progress{height:4px;border-radius:2px;background:rgba(26,54,96,0.1);margin-top:6px;overflow:hidden;border:1px solid rgba(26,54,96,0.2);}
+    .theme-progress-bar{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold3),var(--gold2));transition:width .4s ease;}
+    .theme-level-count{font-size:.75rem;color:var(--gold);margin-top:5px;margin-bottom:2px;font-family:'Cinzel',serif;letter-spacing:.02em;font-weight:700;}
+
+    .game-layout{display:grid;grid-template-columns:1fr 290px;gap:14px;align-items:start;}
+    @media(max-width:750px){.game-layout{grid-template-columns:1fr;}}
+    .level-info{
+      background:var(--card-bg);
+      border-radius:var(--radius-md);padding:13px 15px;border:2px solid var(--card-border);margin-bottom:12px;
+      box-shadow:3px 3px 0 var(--card-shadow);
+    }
+    .level-title{font-size:.95rem;font-weight:700;color:var(--surface-text);display:flex;align-items:center;gap:6px;margin-bottom:4px;font-family:'Cinzel',serif;}
+    .level-desc{font-size:.78rem;color:var(--surface-text2);line-height:1.6;margin-bottom:8px;font-style:italic;}
+    .tag-row{display:flex;flex-wrap:wrap;gap:5px;}
+    .tag{padding:3px 10px;border-radius:2px;font-size:.68rem;background:rgba(26,54,96,0.07);color:var(--surface-text2);border:1px solid var(--surface-border);font-weight:600;font-family:'Cinzel',serif;}
+
+    .grid-wrapper{
+      overflow:auto;position:relative;
+      background:var(--grid-bg);
+      border-radius:var(--radius-md);padding:8px;border:2px solid var(--grid-border);
+      box-shadow:inset 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .grid{display:grid;gap:4px;width:fit-content;}
+    .cell{
+      width:52px;height:52px;border-radius:var(--radius-sm);
+      background:var(--cell-bg);border:1.5px solid var(--cell-border);
+      display:flex;align-items:center;justify-content:center;
+      position:relative;font-size:1.4rem;transition:background .1s,border-color .1s;
+    }
+    .grid.big .cell{width:44px;height:44px;font-size:1.15rem;}
+    .grid.huge .cell{width:38px;height:38px;font-size:1rem;}
+    .cell.obstacle{
+      background:repeating-linear-gradient(45deg,rgba(192,57,43,0.18),rgba(192,57,43,0.18) 4px,transparent 4px,transparent 8px)!important;
+      border-color:rgba(192,57,43,0.5)!important;
+    }
+    .cell.deposit{background:rgba(22,163,74,0.15)!important;border-color:rgba(22,163,74,0.45)!important;box-shadow:0 0 10px rgba(22,163,74,0.15)!important;}
+    .cell.item{background:rgba(245,197,24,0.12)!important;border-color:rgba(245,197,24,0.5)!important;box-shadow:0 0 8px rgba(245,197,24,0.15)!important;}
+    .cell.robot-cell{background:rgba(238,242,247,0.05);border-color:rgba(245,197,24,0.25);}
+    .cell.robot-carrying{background:linear-gradient(135deg,rgba(22,163,74,0.15),rgba(245,197,24,0.15))!important;}
+    .cell.door-cell{background:rgba(238,242,255,0.95)!important;border-color:#4f46e5!important;box-shadow:0 0 12px rgba(99,102,241,0.5)!important;}
+    .cell.door-cell.door-locked{background:rgba(254,242,242,0.95)!important;border-color:#f87171!important;animation:doorPulse 2s ease-in-out infinite;}
+    .cell.door-cell.door-open{background:rgba(240,253,244,0.95)!important;border-color:#4ade80!important;animation:doorGlow 1.5s ease-in-out infinite;}
+    .cell.door-cell.door-opening .door-panel{animation:doorOpen 0.5s ease forwards;}
+    .door-svg-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative;}
+    @keyframes doorOpen{0%{transform:perspective(120px) rotateY(0deg);}100%{transform:perspective(120px) rotateY(-78deg);}}
+    @keyframes doorGlow{0%,100%{box-shadow:0 0 6px rgba(74,222,128,0.4);}50%{box-shadow:0 0 18px rgba(74,222,128,0.9);}}
+    @keyframes doorPulse{0%,100%{box-shadow:0 0 6px rgba(239,68,68,0.4);}50%{box-shadow:0 0 16px rgba(239,68,68,0.7);}}
+    .item-under-robot{position:absolute;bottom:2px;right:3px;font-size:.68em;z-index:3;line-height:1;pointer-events:none;filter:drop-shadow(0 0 3px rgba(0,0,0,0.55));animation:itemPulse 1.4s ease-in-out infinite;}
+    @keyframes itemPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.2);}}
+
+    .robot-icon{width:80%;height:80%;display:inline-block;pointer-events:none;transform-origin:center;
+      transition:transform .2s ease;filter:drop-shadow(0 0 10px rgba(245,197,24,0.6));animation:robotFloat 2.8s ease-in-out infinite;}
+    @keyframes robotFloat{0%,100%{filter:drop-shadow(0 0 8px rgba(245,197,24,0.5));}50%{filter:drop-shadow(0 0 18px rgba(245,197,24,0.9));}}
+    .robot-icon svg{width:100%;height:100%;display:block;}
+    .grid.big .robot-icon{width:94%;height:94%;}
+    .grid.huge .robot-icon{width:96%;height:96%;}
+    .robot-dir{position:absolute;bottom:2px;right:3px;font-size:.65rem;opacity:.6;color:var(--gold);}
+    .carry-badge{position:absolute;top:1px;right:2px;font-size:.7rem;}
+    .robot-icon-inner{display:block;width:100%;height:100%;}
+    @keyframes robotBounce{0%{transform:scale(1);}40%{transform:scale(1.13);}70%{transform:scale(.95);}100%{transform:scale(1);}}
+    .robot-icon-bounce .robot-icon-inner{animation:robotBounce .25s ease;}
+    @keyframes robotShake{0%{transform:translateX(0);}20%{transform:translateX(-5px);}40%{transform:translateX(5px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);}100%{transform:translateX(0);}}
+    .robot-icon-shake .robot-icon-inner{animation:robotShake .35s ease;}
+    @keyframes robotDance{0%{transform:rotate(0deg) scale(1);}15%{transform:rotate(-15deg) scale(1.08);}30%{transform:rotate(15deg) scale(1.08);}45%{transform:rotate(-15deg) scale(1.1);}60%{transform:rotate(15deg) scale(1.1);}80%{transform:rotate(0deg) scale(1.05);}100%{transform:rotate(0deg) scale(1);}}
+    .robot-dance .robot-icon-inner{animation:robotDance 1s ease;}
+    @keyframes levelFadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+    .level-fade-in{animation:levelFadeIn .22s ease both;}
+
+    .commands{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px;}
+    .cmd-btn{
+      padding:9px 6px;border-radius:var(--radius-sm);
+      border:1.5px solid var(--cmd-border);
+      background:var(--cmd-bg);
+      font-size:.78rem;cursor:pointer;font-weight:700;
+      font-family:'Cinzel',serif;color:var(--cmd-text);
+      transition:background .12s,transform .1s,border-color .12s;
+      display:flex;align-items:center;justify-content:center;gap:5px;
+      box-shadow:2px 2px 0 var(--cmd-shadow);
+    }
+    .cmd-btn:hover{border-color:var(--gold3);transform:translateY(-1px);}
+    .cmd-btn:active,.cmd-btn.cmd-btn-active{transform:scale(.96);}
+
+    .queue-box{
+      background:var(--queue-bg);border-radius:var(--radius-md);
+      border:2px solid var(--queue-border);padding:10px;margin-bottom:8px;
+    }
+    .queue-label{font-size:.75rem;color:var(--surface-text2);font-weight:700;margin-bottom:6px;font-family:'Cinzel',serif;}
+    .queue-commands{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;min-height:28px;}
+    .queue-cmd{
+      padding:3px 8px;border-radius:2px;font-size:.7rem;
+      background:var(--queue-cmd-bg);border:1px solid var(--queue-border);
+      color:var(--queue-cmd-text);font-family:'Cinzel',serif;
+    }
+    .queue-actions{display:flex;gap:5px;flex-wrap:wrap;}
+
+    .feedback-box{
+      border-radius:var(--radius-md);padding:8px 12px;font-size:.8rem;
+      margin-bottom:8px;border:1.5px solid;line-height:1.5;
+    }
+    .feedback-ok{background:var(--ok-bg);border-color:var(--ok-border);color:var(--ok);}
+    .feedback-err{background:var(--err-bg);border-color:var(--err-border);color:var(--err);}
+    .feedback-warn{background:var(--warn-bg);border-color:var(--warn-border);color:var(--warn);}
+    .feedback-info{background:var(--feedback-info-bg);border-color:var(--feedback-info-border);color:var(--feedback-info-text);}
+
+    .kbd-hint{font-size:.7rem;color:var(--muted);margin-bottom:8px;font-style:italic;}
+
+    .academy-side{
+      background:var(--card-bg);
+      border-radius:var(--radius-md);padding:12px;border:2px solid var(--card-border);
+      box-shadow:3px 3px 0 var(--card-shadow);
+    }
+
+    .layout-with-side{display:grid;grid-template-columns:180px 1fr;gap:14px;align-items:start;}
+    @media(max-width:700px){.layout-with-side{grid-template-columns:1fr;}}
+
+    .sidebar{
+      background:var(--sidebar-bg);
+      border-radius:var(--radius-lg);padding:14px 10px;border:2px solid var(--gold3);
+      box-shadow:3px 3px 0 rgba(0,0,0,0.3);
+      position:sticky;top:14px;
+    }
+    .side-section{margin-bottom:14px;}
+    .side-title{font-size:.68rem;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;font-family:'Cinzel',serif;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid rgba(245,197,24,0.2);}
+    .side-robot-wrap{display:flex;justify-content:center;margin-bottom:10px;}
+    .side-robot-wrap svg{width:54px;height:54px;filter:drop-shadow(0 0 8px rgba(245,197,24,0.4));}
+    .side-btn{
+      display:block;width:100%;text-align:left;padding:5px 8px;margin-bottom:4px;
+      font-size:.72rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:700;
+      background:var(--sidebar-btn);border:1px solid var(--sidebar-btn-border);border-radius:3px;
+      color:var(--sidebar-text);transition:background .1s,border-color .1s;
+    }
+    .side-btn:hover{background:rgba(255,255,255,0.15);border-color:var(--gold);}
+    .side-prog{font-size:.7rem;color:rgba(255,255,255,0.45);margin-top:3px;margin-left:2px;}
+
+    .popup{
+      position:fixed;inset:0;background:var(--popup-overlay);
+      display:flex;align-items:center;justify-content:center;z-index:9999;
+      animation:popBg .15s ease;
+    }
+    @keyframes popBg{from{opacity:0;}to{opacity:1;}}
+    .popup.hidden{display:none!important;}
+    .popup-inner{
+      background:var(--popup-bg);
+      border:2px solid var(--gold);border-radius:12px;
+      padding:22px 26px;max-width:400px;width:90%;text-align:center;
+      color:var(--popup-text);font-family:'Cinzel',serif;
+      box-shadow:0 0 60px rgba(245,197,24,0.2),0 20px 60px rgba(0,0,0,0.4);
+      animation:popIn .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes popIn{from{opacity:0;transform:scale(.85);}to{opacity:1;transform:scale(1);}}
+    .popup-inner h3{margin:6px 0 4px;font-size:1.25rem;color:var(--popup-text);}
+    .popup-inner p{font-size:.82rem;color:var(--popup-subtext);font-style:italic;font-family:'Lora',serif;}
+    .popup-stars-row{display:flex;justify-content:center;gap:6px;font-size:1.6rem;margin:8px 0;}
+    .popup-star{display:inline-block;opacity:.25;transition:opacity .3s,transform .3s;}
+    .popup-star.lit{opacity:1;animation:starPop .35s cubic-bezier(.34,1.56,.64,1) forwards;}
+    @keyframes starPop{from{transform:scale(0)rotate(-30deg);}to{transform:scale(1)rotate(0);}}
+    .popup-fact{
+      background:var(--popup-fact-bg);border:1px solid var(--popup-fact-border);
+      border-radius:6px;padding:8px 12px;font-size:.78rem;color:var(--surface-text2);
+      font-style:italic;font-family:'Lora',serif;text-align:left;margin:8px 0;line-height:1.6;
+    }
+    .popup-btns{display:flex;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap;}
+    .popup-confetti-wrap{position:absolute;inset:0;overflow:hidden;border-radius:12px;pointer-events:none;}
+
+    @keyframes cardAnim{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+    .card-anim{animation:cardAnim .3s ease both;}
+
+    /* ── QUIZ ── */
+    .quiz-q{font-size:.85rem;color:var(--gold2);font-family:'Cinzel',serif;font-weight:700;margin-bottom:10px;line-height:1.5;text-align:left;}
+    .quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;}
+    .quiz-opt{
+      padding:7px 10px;border-radius:4px;border:1.5px solid rgba(245,197,24,0.35);
+      background:rgba(10,31,60,0.7);color:var(--gold);font-size:.78rem;cursor:pointer;
+      font-family:'Lora',serif;text-align:left;line-height:1.4;transition:background .12s,border-color .12s;
+    }
+    .quiz-opt:hover:not(:disabled){background:rgba(26,54,96,0.9);border-color:var(--gold);}
+    .quiz-opt:disabled{cursor:default;}
+    .quiz-opt-correct{background:rgba(22,163,74,0.25)!important;border-color:#4ade80!important;color:#4ade80!important;}
+    .quiz-opt-wrong{background:rgba(192,57,43,0.25)!important;border-color:#f87171!important;color:#f87171!important;}
+    .quiz-result{font-size:.8rem;text-align:left;min-height:1.4em;margin-top:2px;}
+    .quiz-ok{color:#4ade80;font-weight:700;}
+    .quiz-err{color:#f87171;}
+
+    /* EU star circle decoration */
+    .eu-stars{display:flex;justify-content:center;gap:3px;font-size:.7rem;margin-bottom:4px;opacity:.6;}
+
+    /* ══════════════════════════════════════════
+       MODO CLARO — overrides completos
+       ══════════════════════════════════════════ */
+    body:not(.dark) header{
+      background:var(--noise),linear-gradient(135deg,#1a3660 0%,#0d2247 100%)!important;
+    }
+    body:not(.dark) .screen{
+      background:#f5f8fc!important;
+      border-color:#b0c4de!important;
+      box-shadow:3px 3px 0 rgba(10,31,60,0.12)!important;
+    }
+    body:not(.dark) .screen::before,
+    body:not(.dark) .screen::after{ color:var(--border)!important; opacity:.25!important; }
+
+    body:not(.dark) .hero{
+      background:linear-gradient(155deg,#1a3660,#0d2247)!important;
+      border-color:#1a3660!important;
+    }
+
+    body:not(.dark) .sidebar{
+      background:linear-gradient(155deg,#1a3660,#0d2247)!important;
+      border-color:#1a3660!important;
+    }
+    body:not(.dark) .side-btn{
+      background:rgba(255,255,255,0.1)!important;
+      border-color:rgba(255,255,255,0.2)!important;
+      color:var(--gold2)!important;
+    }
+    body:not(.dark) .side-btn:hover{
+      background:rgba(255,255,255,0.18)!important;
+      border-color:var(--gold)!important;
+    }
+    body:not(.dark) .side-title{ color:var(--gold)!important; }
+    body:not(.dark) .side-prog{ color:rgba(255,255,255,0.55)!important; }
+
+    body:not(.dark) .cycle-card{
+      background:linear-gradient(155deg,#ffffff,#eef4fb)!important;
+      border-color:#b0c4de!important;
+      box-shadow:3px 3px 0 rgba(10,31,60,0.12)!important;
+    }
+    body:not(.dark) .cycle-card:hover{
+      box-shadow:5px 5px 0 rgba(10,31,60,0.18),0 0 20px rgba(26,54,96,0.1)!important;
+    }
+    body:not(.dark) .cycle-title{ color:var(--ink)!important; }
+    body:not(.dark) .cycle-sub{ color:var(--ink2)!important; }
+    body:not(.dark) .chip{
+      background:rgba(26,54,96,0.08)!important;
+      border-color:rgba(26,54,96,0.25)!important;
+      color:var(--ink2)!important;
+    }
+
+    body:not(.dark) .theme-card{
+      background:linear-gradient(155deg,#ffffff,#eef4fb)!important;
+      border-color:#b0c4de!important;
+      box-shadow:3px 3px 0 rgba(10,31,60,0.12)!important;
+    }
+    body:not(.dark) .theme-card:hover{
+      border-color:var(--border2)!important;
+      box-shadow:5px 5px 0 rgba(10,31,60,0.18),0 0 22px rgba(26,54,96,0.08)!important;
+    }
+    body:not(.dark) .theme-title{ color:var(--ink)!important; }
+    body:not(.dark) .theme-sub{ color:var(--ink2)!important; }
+    body:not(.dark) .theme-card::before{ background:linear-gradient(90deg,transparent,var(--border2),transparent)!important; }
+    body:not(.dark) .theme-progress{ background:rgba(26,54,96,0.1)!important; border-color:rgba(26,54,96,0.2)!important; }
+    body:not(.dark) .theme-level-count{ color:var(--ink2)!important; }
+
+    body:not(.dark) .menu-header h2{ color:var(--ink)!important; }
+    body:not(.dark) .menu-header p{ color:var(--ink2)!important; }
+    body:not(.dark) .small-text{ color:var(--ink2)!important; }
+    body:not(.dark) .breadcrumbs{ color:var(--ink2)!important; }
+    body:not(.dark) .pill{ color:var(--ink2)!important; border-color:var(--border)!important; background:rgba(26,54,96,0.07)!important; }
+
+    body:not(.dark) .level-info{
+      background:linear-gradient(155deg,#ffffff,#eef4fb)!important;
+      border-color:#b0c4de!important;
+      box-shadow:2px 2px 0 rgba(10,31,60,0.1)!important;
+    }
+    body:not(.dark) .level-title{ color:var(--ink)!important; }
+    body:not(.dark) .level-desc{ color:var(--ink2)!important; }
+    body:not(.dark) .tag{ background:rgba(26,54,96,0.08)!important; border-color:rgba(26,54,96,0.25)!important; color:var(--ink2)!important; }
+
+    body:not(.dark) .grid-wrapper{
+      background:linear-gradient(135deg,#dce6f0,#eef4fb)!important;
+      border-color:#b0c4de!important;
+    }
+    body:not(.dark) .cell{
+      background:rgba(255,255,255,0.85)!important;
+      border-color:rgba(26,54,96,0.18)!important;
+    }
+    body:not(.dark) .cell.obstacle{
+      background:repeating-linear-gradient(45deg,rgba(192,57,43,0.12),rgba(192,57,43,0.12) 4px,transparent 4px,transparent 8px)!important;
+      border-color:rgba(192,57,43,0.4)!important;
+    }
+    body:not(.dark) .cell.deposit{ background:rgba(22,163,74,0.12)!important; border-color:rgba(22,163,74,0.4)!important; }
+    body:not(.dark) .cell.item{ background:rgba(26,54,96,0.08)!important; border-color:rgba(26,54,96,0.35)!important; }
+    body:not(.dark) .cell.robot-cell{ background:rgba(220,232,248,0.9)!important; border-color:rgba(26,54,96,0.3)!important; }
+    body:not(.dark) .robot-dir{ color:var(--border)!important; }
+
+    body:not(.dark) .academy-side{
+      background:linear-gradient(155deg,#ffffff,#eef4fb)!important;
+      border-color:#b0c4de!important;
+      box-shadow:2px 2px 0 rgba(10,31,60,0.1)!important;
+    }
+    body:not(.dark) .cmd-btn{
+      background:linear-gradient(180deg,#ffffff,#dce6f0)!important;
+      border-color:rgba(26,54,96,0.3)!important;
+      color:var(--ink)!important;
+      box-shadow:2px 2px 0 rgba(10,31,60,0.15)!important;
+    }
+    body:not(.dark) .cmd-btn:hover{
+      background:linear-gradient(180deg,#eef4fb,#c8d8e8)!important;
+      border-color:var(--border)!important;
+    }
+    body:not(.dark) .cmd-btn:active,
+    body:not(.dark) .cmd-btn.cmd-btn-active{ background:rgba(26,54,96,0.1)!important; }
+
+    body:not(.dark) .queue-box{
+      background:rgba(220,230,240,0.7)!important;
+      border-color:rgba(26,54,96,0.25)!important;
+    }
+    body:not(.dark) .queue-label{ color:var(--ink2)!important; }
+    body:not(.dark) .queue-cmd{
+      background:rgba(26,54,96,0.08)!important;
+      border-color:rgba(26,54,96,0.25)!important;
+      color:var(--ink)!important;
+    }
+
+    body:not(.dark) .feedback-info{ color:var(--ink2)!important; background:rgba(26,54,96,0.07)!important; border-color:rgba(26,54,96,0.25)!important; }
+    body:not(.dark) .kbd-hint{ color:var(--ink3)!important; }
+    body:not(.dark) #hint-text{ color:var(--ink2)!important; }
+
+    body:not(.dark) .btn.secondary{
+      background:linear-gradient(180deg,#1a3660,#0d2247)!important;
+      color:var(--gold2)!important;
+      border-color:var(--border)!important;
+    }
+    body:not(.dark) .btn.secondary:hover{
+      background:linear-gradient(180deg,#24487a,#1a3660)!important;
+    }
+
+  </style>
+</head>
+<body class="dark">
+
+<div id="app">
+  <header>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="logo-wrap" id="logo-robot"></div>
+      <div>
+        <h1>⭐ Europa Unida — Missões</h1>
+        <p>Guia o robot pela história da União Europeia</p>
+      </div>
+    </div>
+    <div class="header-btns">
+      <button class="btn secondary small" id="btn-dark-mode">☀️ Modo claro</button>
+      <button class="btn secondary small" id="btn-mute">🔊 Som</button>
+    </div>
+  </header>
+
+  <div class="layout-with-side">
+    <div class="sidebar">
+      <div class="side-robot-wrap"><div id="side-robot"></div></div>
+      <div class="side-section">
+        <div class="side-title">Navegação</div>
+        <button class="side-btn" id="side-home">🏠 Início</button>
+        <button class="side-btn" id="side-1c">🟡 1.º Ciclo<div class="side-prog" id="side-prog-1c">0 / 3 temas</div></button>
+        <button class="side-btn" id="side-2c">🟠 2.º Ciclo<div class="side-prog" id="side-prog-2c">0 / 3 temas</div></button>
+        <button class="side-btn" id="side-3c">🔴 3.º Ciclo<div class="side-prog" id="side-prog-3c">0 / 3 temas</div></button>
+      </div>
+      <div class="side-section">
+        <div class="side-title">Opções</div>
+        <button class="btn secondary small" style="width:100%;margin-bottom:4px;" id="btn-super-easy">🧸 Super Fácil: OFF</button>
+      </div>
+    </div>
+
+    <div id="main-content">
+      <!-- MENU -->
+      <div id="menu-screen" class="screen">
+        <div class="menu-layout">
+          <div class="hero">
+            <div class="hero-top">
+              <div class="hero-text">
+                <div class="eu-stars">★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★</div>
+                <h2>União Europeia</h2>
+                <p>70 anos de integração europeia — das ruínas da guerra à maior área de paz e prosperidade da história.</p>
+              </div>
+              <div class="hero-robot-wrap">
+                <div class="hero-glow"></div>
+                <div class="hero-robot" id="hero-robot"></div>
+              </div>
+            </div>
+            <div class="hero-desc">
+              🕊️ Paz e reconciliação · 💶 Mercado único · 🗳️ Democracia · 🌍 Alargamento
+            </div>
+          </div>
+          <div>
+            <div class="menu-header">
+              <h2>Escolhe o teu ciclo</h2>
+              <p>Cada ciclo tem um modo de jogo diferente. Começa pelo 1.º!</p>
+            </div>
+            <div class="cycle-grid">
+              <div class="cycle-card cycle-card--1c" id="btn-cycle-1c">
+                <div class="cycle-title">🟡 1.º Ciclo</div>
+                <div class="cycle-sub">Comandos imediatos. Os pais fundadores da Europa!</div>
+                <div class="chip-row">
+                  <span class="chip">🕊️ Origens</span>
+                  <span class="chip">⚙️ CECA</span>
+                  <span class="chip">📜 Tratados</span>
+                </div>
+              </div>
+              <div class="cycle-card cycle-card--2c" id="btn-cycle-2c">
+                <div class="cycle-title">🟠 2.º Ciclo</div>
+                <div class="cycle-sub">Planeia a sequência! O mercado único e Maastricht.</div>
+                <div class="chip-row">
+                  <span class="chip">💶 Euro</span>
+                  <span class="chip">🏛️ Instituições</span>
+                  <span class="chip">🤝 Schengen</span>
+                </div>
+              </div>
+              <div class="cycle-card cycle-card--3c" id="btn-cycle-3c">
+                <div class="cycle-title">🔴 3.º Ciclo</div>
+                <div class="cycle-sub">Sequências eficientes — alargamento e desafios!</div>
+                <div class="chip-row">
+                  <span class="chip">🗺️ Alargamento</span>
+                  <span class="chip">🇵🇹 Portugal</span>
+                  <span class="chip">🌐 Futuro</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- THEMES 1C -->
+      <div id="themes-1c" class="screen hidden">
+        <div class="back-row">
+          <button class="btn secondary small" id="btn-back-menu-1c">← Início</button>
+          <span class="small-text">🟡 1.º Ciclo — As origens da integração europeia (1950–1957)</span>
+        </div>
+        <div class="theme-grid">
+          <div class="theme-card" data-cycle="1c" data-theme="schuman">
+            <div class="theme-emoji">🕊️📜</div>
+            <div class="theme-title">Declaração Schuman</div>
+            <div class="theme-sub">9 de maio de 1950 — o dia fundador da Europa unida!</div>
+            <div class="theme-progress"><div class="theme-progress-bar" style="width:0%"></div></div>
+          </div>
+          <div class="theme-card" data-cycle="1c" data-theme="ceca">
+            <div class="theme-emoji">⚙️🔩</div>
+            <div class="theme-title">A CECA (1951)</div>
+            <div class="theme-sub">Carvão e aço juntos: a primeira Comunidade Europeia!</div>
+            <div class="theme-progress"><div class="theme-progress-bar" style="width:0%"></div></div>
+          </div>
+          <div class="theme-card" data-cycle="1c" data-theme="roma">
+            <div class="theme-emoji">🏛️✍️</div>
+            <div class="theme-title">Tratados de Roma (1957)</div>
+            <div class="theme-sub">CEE e Euratom: a Europa Económica nasce em Roma!</div>
+            <div class="theme-progress"><div class="theme-progress-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- THEMES 2C -->
+      <div id="themes-2c" class="screen hidden">
+        <div class="back-row">
+          <button class="btn secondary small" id="btn-back-menu-2c">← Início</button>
+          <span class="small-text">🟠 2.º Ciclo — Aprofundamento e Maastricht (1985–1999)</span>
+        </div>
+        <div class="theme-grid">
+          <div class="theme-card" data-cycle="2c" data-theme="schengen">
+            <div class="theme-emoji">🛂🌍</div>
+            <div class="theme-title">Acordo de Schengen (1985)</div>
+            <div class="theme-sub">Livre circulação de pessoas — o fim das fronteiras internas!</div>
+            <div class="theme-progress"><div class="theme-progress-bar" style="width:0%"></div></div>
+          </div>
+          <div class="theme-card" data-cycle="2c" data-theme="maastricht">
+            <div class="theme-emoji">📃🤝</div>
+            <div class="theme-title">Tratado de Maastricht (1992)</div>
+            <div class="theme-sub">A CEE torna-se UE: cidadania europeia e o caminho para o Euro!</div>
+            <div class="theme-progress"><div class="theme-progress-bar" style="width:0%"></div></div>
+          </div>
+          <div class="theme-card" data-cycle="2c" data-theme="euro">
+            <div class="theme-emoji">💶🏦</div>
+            <div class="theme-title">O Euro (1999–2002)</div>
+            <div class="theme-sub">A moeda única — contabilidade em 1999, notas em 2002!</div>
+            <div class="theme-progress"><div class="theme-progress-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- THEMES 3C -->
+      <div id="themes-3c" class="screen hidden">
+        <div class="back-row">
+          <button class="btn secondary small" id="btn-back-menu-3c">← Início</button>
+          <span class="small-text">🔴 3.º Ciclo — Alargamento e Portugal na Europa (1986–presente)</span>
+        </div>
+        <div class="theme-grid">
+          <div class="theme-card" data-cycle="3c" data-theme="portugal">
+            <div class="theme-emoji">🇵🇹🌸</div>
+            <div class="theme-title">Portugal na CEE (1986)</div>
+            <div class="theme-sub">1 de janeiro de 1986 — Portugal e Espanha aderem à Comunidade!</div>
+            <div class="theme-progress"><div class="theme-progress-bar" style="width:0%"></div></div>
+          </div>
+          <div class="theme-card" data-cycle="3c" data-theme="alargamento">
+            <div class="theme-emoji">🗺️🌐</div>
+            <div class="theme-title">Grandes Alargamentos</div>
+            <div class="theme-sub">De 6 para 27 — décadas de expansão para Leste e Sul!</div>
+            <div class="theme-progress"><div class="theme-progress-bar" style="width:0%"></div></div>
+          </div>
+          <div class="theme-card" data-cycle="3c" data-theme="lisboa">
+            <div class="theme-emoji">📜🏙️</div>
+            <div class="theme-title">Tratado de Lisboa (2007)</div>
+            <div class="theme-sub">A Constituição falhada e o novo tratado que reformou a UE!</div>
+            <div class="theme-progress"><div class="theme-progress-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAME -->
+      <div id="game-screen" class="screen hidden">
+        <div class="back-row">
+          <div class="breadcrumbs">
+            <button class="btn secondary small" id="btn-main-menu">🏠 Início</button>
+            <span>›</span>
+            <button class="btn secondary small" id="btn-back-themes">← Temas</button>
+            <span>›</span>
+            <span id="crumb-theme">—</span>
+            <span>›</span>
+            <span id="crumb-level">Nível 1</span>
+          </div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;">
+            <span class="pill" id="pill-difficulty">Dificuldade: —</span>
+            <button class="btn secondary small" id="btn-reset-level-top">↺ Reiniciar</button>
+            <button class="btn secondary small" id="btn-reset-theme">🗑 Recomeçar tema</button>
+          </div>
+        </div>
+
+        <div class="game-layout">
+          <div>
+            <div class="level-info">
+              <div class="level-title"><span id="level-emoji">⭐</span> <span id="level-title-text">Tema</span></div>
+              <div class="level-desc" id="level-desc">Descrição do nível.</div>
+              <div class="tag-row">
+                <span class="tag" id="tag-optimal">🏁 Ótimo: —</span>
+                <span class="tag" id="moves">Movimentos: 0</span>
+              </div>
+            </div>
+            <div class="grid-wrapper">
+              <div class="grid" id="grid"></div>
+            </div>
+            <div style="font-size:.72rem;color:#8a9ab8;margin-top:5px;" id="hint-text"></div>
+          </div>
+
+          <div class="academy-side">
+            <div class="commands">
+              <button class="cmd-btn" data-cmd="MOVE" id="btn-cmd-move">⬆️ Avançar</button>
+              <button class="cmd-btn" data-cmd="COLLECT" id="btn-cmd-collect">✋ Recolher</button>
+              <button class="cmd-btn" data-cmd="LEFT" id="btn-cmd-left">↩️ Virar esq.</button>
+              <button class="cmd-btn" data-cmd="RIGHT" id="btn-cmd-right">↪️ Virar dir.</button>
+              <button class="cmd-btn" data-cmd="BACK" id="btn-cmd-back">⬇️ Recuar</button>
+              <button class="cmd-btn" data-cmd="DROP" id="btn-cmd-drop">📥 Depositar</button>
+            </div>
+
+            <div class="queue-box hidden" id="queue-box">
+              <div class="queue-label">📋 Sequência de comandos</div>
+              <div class="queue-commands" id="queue-commands"></div>
+              <div class="queue-actions">
+                <button class="btn small" id="btn-run-queue" style="display:none;">▶️ Executar</button>
+                <button class="btn secondary small" id="btn-undo-queue" style="display:none;">↩ Desfazer</button>
+                <button class="btn secondary small" id="btn-clear-queue" style="display:none;">🧹 Limpar</button>
+              </div>
+            </div>
+
+            <div class="feedback-box feedback-info" id="feedback">Selecciona um tema para começar.</div>
+            <div class="kbd-hint">⌨️ W/↑ avançar · S/↓ recuar · A/← esq · D/→ dir · E recolher · F depositar</div>
+
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button class="btn secondary small" id="btn-reset-level">↺ Reiniciar nível</button>
+              <button class="btn secondary small" id="btn-undo-direct" style="display:none;">↩ Desfazer (Z)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP -->
+<div class="popup hidden" id="popup-complete">
+  <div class="popup-inner" style="position:relative;">
+    <div class="popup-confetti-wrap" id="popup-confetti"></div>
+    <div style="font-size:2rem;margin-bottom:2px;">🎉</div>
+    <h3 id="popup-title">Missão cumprida!</h3>
+    <div class="popup-stars-row">
+      <span class="popup-star" id="popup-star1">⭐</span>
+      <span class="popup-star" id="popup-star2">⭐</span>
+      <span class="popup-star" id="popup-star3">⭐</span>
+    </div>
+    <p id="popup-text"></p>
+    <div class="popup-fact" id="popup-fact" style="display:none;"></div>
+    <div id="popup-quiz-section" style="display:none;"></div>
+    <div class="popup-btns">
+      <button class="btn small" id="popup-next">➡️ Próxima missão</button>
+      <button class="btn secondary small" id="popup-menu">🏠 Menu</button>
+    </div>
+  </div>
+</div>
+
+<audio id="soundMove"    src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
+<audio id="soundSuccess" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
+<audio id="soundError"   src="https://actions.google.com/sounds/v1/cartoon/boing.ogg" preload="auto"></audio>
+<audio id="soundBump"    src="https://actions.google.com/sounds/v1/cartoon/boing.ogg" preload="auto"></audio>
+<audio id="soundVictory" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  "use strict";
+
+  /* ===== ROBOT SVG — Europa Bot ===== */
+  const EU_ROBOT_SVG = `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="euBodyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#003399"/><stop offset="100%" stop-color="#001f66"/>
+    </linearGradient>
+    <linearGradient id="euVisorGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f5c518"/><stop offset="100%" stop-color="#ffd700"/>
+    </linearGradient>
+  </defs>
+  <circle cx="40" cy="40" r="32" fill="rgba(0,51,153,0.18)"/>
+  <rect x="18" y="30" width="44" height="32" rx="14" fill="url(#euBodyGrad)" stroke="#1a3660" stroke-width="2"/>
+  <circle cx="40" cy="46" r="7" fill="#f5c518"/>
+  <rect x="22" y="10" width="36" height="26" rx="13" fill="url(#euBodyGrad)" stroke="#1a3660" stroke-width="2"/>
+  <rect x="26" y="15" width="28" height="16" rx="8" fill="url(#euVisorGrad)" stroke="#ffeaa0" stroke-width="1.5"/>
+  <circle cx="33" cy="23" r="2.5" fill="#003399"/><circle cx="47" cy="23" r="2.5" fill="#003399"/>
+  <circle cx="33" cy="23" r="1" fill="#fff"/><circle cx="47" cy="23" r="1" fill="#fff"/>
+  <!-- 12 stars on body -->
+  <text x="27" y="44" font-size="5" fill="#ffd700">★</text>
+  <text x="35" y="44" font-size="5" fill="#ffd700">★</text>
+  <text x="43" y="44" font-size="5" fill="#ffd700">★</text>
+  <text x="51" y="44" font-size="5" fill="#ffd700">★</text>
+  <line x1="40" y1="10" x2="40" y2="4" stroke="#f5c518" stroke-width="2"/>
+  <circle cx="40" cy="3" r="2.5" fill="#f5c518" stroke="#ffeaa0" stroke-width="1"/>
+  <rect x="12" y="34" width="6" height="20" rx="3" fill="#1a3660"/>
+  <rect x="62" y="34" width="6" height="20" rx="3" fill="#1a3660"/>
+  <rect x="22" y="58" width="12" height="8" rx="3" fill="#050f1f"/>
+  <rect x="46" y="58" width="12" height="8" rx="3" fill="#050f1f"/>
+  <circle cx="28" cy="62" r="2" fill="#1a3660"/><circle cx="52" cy="62" r="2" fill="#1a3660"/>
+</svg>`;
+
+  function EU_POPUP_SVG(){
+    const uid = Math.random().toString(36).slice(2,6);
+    return `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="epbg${uid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#003399"/><stop offset="100%" stop-color="#001f66"/>
+    </linearGradient>
+  </defs>
+  <circle cx="40" cy="40" r="34" fill="rgba(245,197,24,0.15)"/>
+  <rect x="18" y="30" width="44" height="32" rx="14" fill="url(#epbg${uid})"/>
+  <circle cx="40" cy="46" r="7" fill="#f5c518"/>
+  <rect x="22" y="10" width="36" height="26" rx="13" fill="url(#epbg${uid})"/>
+  <rect x="26" y="15" width="28" height="16" rx="8" fill="#ffd700"/>
+  <circle cx="33" cy="23" r="2.5" fill="#003399"/>
+  <circle cx="47" cy="23" r="2.5" fill="#003399"/>
+  <line x1="40" y1="10" x2="40" y2="4" stroke="#f5c518" stroke-width="2"/>
+  <circle cx="40" cy="3" r="2.5" fill="#f5c518"/>
+  <rect x="12" y="34" width="6" height="20" rx="3" fill="#1a3660"/>
+  <rect x="62" y="34" width="6" height="20" rx="3" fill="#1a3660"/>
+</svg>`;
+  }
+
+  const $ = id => document.getElementById(id);
+
+  ["logo-robot","hero-robot","side-robot"].forEach(id => {
+    const el = $(id);
+    if(el) el.innerHTML = EU_ROBOT_SVG;
+  });
+
+  /* ===== DADOS HISTÓRICOS DA UE ===== */
+  const GAME_DATA = {
+    "1c": {
+      name:"1.º Ciclo", mode:"direct",
+      themes:{
+        schuman:{
+          name:"Declaração Schuman", emoji:"🕊️📜",
+          itemEmojis:["📜","🕊️","✉️"], obstacleEmoji:"💣",
+          superEasyLevels:[
+            {size:4,robot:[3,3],items:[[1,1]],deposit:[[0,0]],obstacles:[],difficulty:"Super Fácil",desc:"Robert Schuman apresentou a sua declaração a 9 de maio de 1950. Esse dia é hoje o Dia da Europa! Leva o documento ao arquivo."},
+            {size:5,robot:[4,4],items:[[2,1]],deposit:[[0,0]],obstacles:[],difficulty:"Super Fácil",desc:"Schuman era ministro dos Negócios Estrangeiros francês. Jean Monnet foi o arquiteto intelectual do plano. Recolhe as propostas!"},
+            {size:5,robot:[4,3],items:[[1,3]],deposit:[[0,0]],obstacles:[],difficulty:"Super Fácil",desc:"A declaração propunha colocar a produção franco-alemã de carvão e aço sob uma Alta Autoridade comum. Leva o plano a Bona!"}
+          ],
+          levels:[
+            {size:5,robot:[4,2],items:[[2,2]],deposit:[[0,0]],obstacles:[],difficulty:"Fácil",desc:"9 de maio de 1950: Schuman anuncia o plano que tornará a guerra entre França e Alemanha 'não apenas impensável, mas materialmente impossível'."},
+            {size:5,robot:[4,4],items:[[3,1],[1,3]],deposit:[[0,0]],obstacles:[[2,2]],difficulty:"Médio",desc:"Bombas da guerra (💣) ainda bloqueiam o caminho. Konrad Adenauer, chanceler alemão, aceitou imediatamente o plano Schuman."},
+            {size:6,robot:[5,5],items:[[4,1],[3,4],[2,5]],deposit:[[0,0]],obstacles:[[3,2],[3,5],[1,3]],difficulty:"Difícil",desc:"Os seis países fundadores foram França, Alemanha Ocidental, Itália, Bélgica, Países Baixos e Luxemburgo. Reúne todos os documentos!"}
+          ]
+        },
+        ceca:{
+          name:"A CECA (1951)", emoji:"⚙️🔩",
+          itemEmojis:["⚙️","🔩","🏭"], obstacleEmoji:"🔥",
+          superEasyLevels:[
+            {size:4,robot:[3,0],items:[[1,1]],deposit:[[0,3]],obstacles:[],difficulty:"Super Fácil",desc:"O Tratado de Paris, assinado a 18 de abril de 1951, criou a Comunidade Europeia do Carvão e do Aço (CECA). Leva-o ao arquivo!"},
+            {size:5,robot:[4,0],items:[[2,2]],deposit:[[0,4]],obstacles:[],difficulty:"Super Fácil",desc:"A CECA entrou em vigor a 23 de julho de 1952. A Alta Autoridade, liderada por Jean Monnet, era a primeira instituição supranacional europeia."},
+            {size:5,robot:[4,1],items:[[1,3]],deposit:[[0,4]],obstacles:[],difficulty:"Super Fácil",desc:"A CECA foi criada por 50 anos e expirou em 2002. Durante esse tempo, aboliu tarifas e quotas no carvão e aço entre os 6 membros."}
+          ],
+          levels:[
+            {size:5,robot:[4,0],items:[[2,1]],deposit:[[0,4]],obstacles:[],difficulty:"Fácil",desc:"O Tratado de Paris (1951) criou a CECA para gerir em comum o carvão e o aço — as matérias-primas da guerra. Leva os relatórios à Alta Autoridade!"},
+            {size:5,robot:[4,0],items:[[3,2],[1,3]],deposit:[[0,4]],obstacles:[[2,2]],difficulty:"Médio",desc:"Incêndios nas minas (🔥) perturbam a produção. A CECA estabeleceu em Luxemburgo a sua sede — cidade que continua a albergar instituições da UE."},
+            {size:6,robot:[5,1],items:[[4,3],[2,4],[1,2]],deposit:[[0,5]],obstacles:[[3,2],[2,2],[2,3]],difficulty:"Difícil",desc:"A CECA provou que a integração supranacional era possível. Reúne toda a documentação para o relatório anual de Jean Monnet!"}
+          ]
+        },
+        roma:{
+          name:"Tratados de Roma (1957)", emoji:"🏛️✍️",
+          itemEmojis:["📋","🏛️","🤝"], obstacleEmoji:"🧱",
+          superEasyLevels:[
+            {size:4,robot:[3,1],items:[[1,2]],deposit:[[0,3]],obstacles:[],difficulty:"Super Fácil",desc:"Os Tratados de Roma foram assinados a 25 de março de 1957 no Capitólio, em Roma. Criaram a CEE e o Euratom. Leva os documentos!"},
+            {size:5,robot:[4,1],items:[[2,3]],deposit:[[0,3]],obstacles:[],difficulty:"Super Fácil",desc:"A Comunidade Económica Europeia (CEE) visava criar um mercado comum. O Euratom visava a cooperação na energia nuclear civil."},
+            {size:5,robot:[4,0],items:[[1,1]],deposit:[[0,3]],obstacles:[],difficulty:"Super Fácil",desc:"Os Tratados entraram em vigor a 1 de janeiro de 1958. Bonn, Paris, Roma, Bruxelas, Haia e Luxemburgo eram os seis membros fundadores."}
+          ],
+          levels:[
+            {size:5,robot:[4,1],items:[[2,1]],deposit:[[0,3]],obstacles:[],difficulty:"Fácil",desc:"25 de março de 1957: os Seis assinam os Tratados de Roma. A CEE visava criar um mercado comum com livre circulação de bens, pessoas, serviços e capitais."},
+            {size:5,robot:[4,1],items:[[3,3],[1,1]],deposit:[[0,3]],obstacles:[[2,2]],difficulty:"Médio",desc:"Muros de burocracia (🧱) atrasam o processo. O Reino Unido recusou aderir aos Tratados de Roma em 1957, optando pela EFTA em 1960."},
+            {size:6,robot:[5,0],items:[[4,2],[3,4],[1,3]],deposit:[[0,4]],obstacles:[[3,1],[2,2],[2,3]],difficulty:"Difícil",desc:"A Comissão Europeia foi criada pelos Tratados de Roma com sede em Bruxelas. O Parlamento Europeu e o Tribunal de Justiça também foram estabelecidos. Reúne todos os tratados!"}
+          ]
+        }
+      }
+    },
+    "2c": {
+      name:"2.º Ciclo", mode:"queue",
+      themes:{
+        schengen:{
+          name:"Acordo de Schengen (1985)", emoji:"🛂🌍",
+          itemEmojis:["🛂","🗺️","🚗"], obstacleEmoji:"🚧",
+          levels:[
+            {size:6,robot:[5,0],items:[[4,2],[2,1]],deposit:[[0,5]],obstacles:[[3,2],[3,3]],difficulty:"Fácil",desc:"O Acordo de Schengen foi assinado a 14 de junho de 1985 no navio MS Marie-Astrid no Mosela, na fronteira entre Luxemburgo, França e Alemanha. Recolhe os passaportes!"},
+            {size:7,robot:[6,0],items:[[5,4],[3,5],[2,2]],deposit:[[0,6]],obstacles:[[4,2],[4,3],[3,3],[2,4]],difficulty:"Médio",desc:"Postos de controlo (🚧) ainda bloqueiam. O espaço Schengen entrou em vigor a 26 de março de 1995, inicialmente com 7 países. Hoje inclui 29 países."},
+            {size:7,robot:[6,1],items:[[5,5],[4,1],[3,6],[2,3]],deposit:[[0,6]],obstacles:[[4,2],[3,2],[3,3],[2,5],[1,3]],difficulty:"Difícil",desc:"A Convenção de Schengen (1990) detalhou as regras de controlo nas fronteiras externas. Portugal aderiu a Schengen em 1991, com controlos suprimidos em 1995!"}
+          ]
+        },
+        maastricht:{
+          name:"Tratado de Maastricht (1992)", emoji:"📃🤝",
+          itemEmojis:["📃","🤝","🏛️"], obstacleEmoji:"🗓️",
+          levels:[
+            {size:6,robot:[5,1],items:[[4,3],[2,4]],deposit:[[0,2]],obstacles:[[3,2],[3,3]],difficulty:"Fácil",desc:"O Tratado de Maastricht foi assinado a 7 de fevereiro de 1992 e entrou em vigor a 1 de novembro de 1993. Transformou a CEE na União Europeia! Recolhe os documentos."},
+            {size:7,robot:[6,2],items:[[5,4],[4,1],[2,4]],deposit:[[0,5]],obstacles:[[4,3],[3,3],[3,4],[2,2]],difficulty:"Médio",desc:"Referendos (🗓️) atrasaram o processo — a Dinamarca rejeitou o tratado em 1992 e só ratificou em 1993 após concessões. Recolhe os resultados!"},
+            {size:7,robot:[6,3],items:[[5,1],[5,5],[3,2],[2,4]],deposit:[[0,5]],obstacles:[[4,2],[4,3],[3,3],[2,2],[1,4]],difficulty:"Difícil",desc:"Maastricht criou os três pilares da UE: Comunidades Europeias, Política Externa e de Segurança Comum, e Cooperação nos domínios da Justiça e Assuntos Internos. Reúne todos!"}
+          ]
+        },
+        euro:{
+          name:"O Euro (1999–2002)", emoji:"💶🏦",
+          itemEmojis:["💶","🏦","💱"], obstacleEmoji:"📉",
+          levels:[
+            {size:6,robot:[5,0],items:[[4,2],[2,1]],deposit:[[0,5]],obstacles:[[3,2],[3,3]],difficulty:"Fácil",desc:"O Euro foi introduzido como moeda contabilística a 1 de janeiro de 1999, com 11 países fundadores. As notas e moedas entraram em circulação a 1 de janeiro de 2002! Recolhe as moedas."},
+            {size:7,robot:[6,0],items:[[5,4],[3,5],[2,2]],deposit:[[0,6]],obstacles:[[4,2],[4,3],[3,3],[2,4]],difficulty:"Médio",desc:"Crises (📉) perturbam a zona euro. O BCE (Banco Central Europeu) foi criado em 1998 com sede em Frankfurt. Define a política monetária dos países do euro."},
+            {size:7,robot:[6,1],items:[[5,5],[4,1],[3,6],[2,3]],deposit:[[0,6]],obstacles:[[4,2],[3,2],[3,3],[2,5],[1,3]],difficulty:"Difícil",desc:"Portugal adotou o euro desde o início em 1999. O escudo português circulou lado a lado com o euro até 28 de fevereiro de 2002. Recolhe todos os registos da transição!"}
+          ]
+        }
+      }
+    },
+    "3c": {
+      name:"3.º Ciclo", mode:"queue",
+      themes:{
+        portugal:{
+          name:"Portugal na CEE (1986)", emoji:"🇵🇹🌸",
+          itemEmojis:["🇵🇹","🌸","📊"], obstacleEmoji:"🌊",
+          levels:[
+            {size:7,robot:[6,0],items:[[5,2],[3,1],[2,4]],deposit:[[0,6]],obstacles:[[4,2],[4,3],[3,3],[2,2]],difficulty:"Médio",desc:"Portugal aderiu à CEE a 1 de janeiro de 1986, juntamente com Espanha. As negociações duraram 9 anos — começaram em 1977, dois anos após o 25 de Abril. Recolhe os dossiers!"},
+            {size:8,robot:[7,1],items:[[6,4],[4,6],[2,2],[1,5]],deposit:[[0,7]],obstacles:[[5,2],[5,3],[4,3],[3,4],[2,5]],difficulty:"Difícil",desc:"As ondas do Atlântico (🌊) dificultam a negociação. A adesão de Portugal trouxe fundos estruturais que modernizaram estradas, escolas e hospitais. Recolhe os relatórios de progresso!"},
+            {size:8,robot:[7,0],items:[[6,2],[6,6],[3,1],[2,4],[1,6]],deposit:[[0,7]],obstacles:[[5,2],[5,5],[4,4],[3,3],[2,2],[1,3]],difficulty:"Desafio",desc:"Portugal presidiu ao Conselho da UE pela primeira vez em 1992, durante a ratificação do Tratado de Maastricht. Mário Soares foi o primeiro presidente português a reunir com os líderes europeus como membro de pleno direito. Reúne toda a documentação!"}
+          ]
+        },
+        alargamento:{
+          name:"Grandes Alargamentos", emoji:"🗺️🌐",
+          itemEmojis:["🗺️","🌐","🏳️"], obstacleEmoji:"🧱",
+          levels:[
+            {size:7,robot:[6,2],items:[[5,4],[3,5],[2,1]],deposit:[[0,4]],obstacles:[[4,3],[4,4],[3,3],[2,4]],difficulty:"Médio",desc:"A UE cresceu de 6 para 27 membros em várias vagas: 1973 (RU, Irlanda, Dinamarca), 1981 (Grécia), 1986 (Portugal, Espanha), 1995 (Áustria, Finlândia, Suécia). Recolhe as bandeiras!"},
+            {size:8,robot:[7,2],items:[[6,6],[4,1],[3,6],[2,2]],deposit:[[0,4]],obstacles:[[5,4],[5,5],[4,4],[3,4],[2,5],[1,3]],difficulty:"Difícil",desc:"Muros do passado (🧱) ainda resistem. Em 2004, dez países aderiram: Polónia, Hungria, República Checa, Eslováquia, Eslovénia, Estónia, Letónia, Lituânia, Chipre e Malta — o maior alargamento da história!"},
+            {size:8,robot:[7,3],items:[[6,1],[6,7],[4,6],[2,2],[1,5]],deposit:[[0,4]],obstacles:[[5,4],[4,4],[3,4],[2,5],[2,3],[1,3]],difficulty:"Desafio",desc:"Em 2007 aderiram a Bulgária e a Roménia. Em 2013, a Croácia, tornando-se o 28.º membro. O Reino Unido saiu a 31 de janeiro de 2020 (Brexit), reduzindo para 27. Recolhe todos os registos do alargamento!"}
+          ]
+        },
+        lisboa:{
+          name:"Tratado de Lisboa (2007)", emoji:"📜🏙️",
+          itemEmojis:["📜","🏙️","⚖️"], obstacleEmoji:"🗳️",
+          levels:[
+            {size:7,robot:[6,1],items:[[5,5],[4,2],[2,4]],deposit:[[0,6]],obstacles:[[5,3],[4,3],[3,3],[2,2]],difficulty:"Médio",desc:"O Tratado de Lisboa foi assinado a 13 de dezembro de 2007 no Mosteiro dos Jerónimos, em Lisboa. Entrou em vigor a 1 de dezembro de 2009, após ser ratificado por todos os 27 Estados-membros."},
+            {size:8,robot:[7,1],items:[[6,6],[5,2],[4,7],[2,4],[1,6]],deposit:[[0,7]],obstacles:[[6,3],[5,3],[4,3],[3,4],[2,5],[1,5]],difficulty:"Difícil",desc:"Referendos (🗳️) complicaram o processo — a Irlanda rejeitou o tratado em 2008 e só ratificou em 2009. Lisboa criou o cargo de Presidente do Conselho Europeu e o de Alto Representante para os Negócios Estrangeiros."},
+            {size:8,robot:[7,2],items:[[6,7],[6,1],[4,6],[3,1],[2,5],[1,7]],deposit:[[0,7]],obstacles:[[6,3],[5,3],[4,4],[3,4],[2,4],[1,5]],difficulty:"Desafio",desc:"Missão final: o Tratado de Lisboa substituiu a proposta de Constituição Europeia, chumbada em referendos em França e nos Países Baixos em 2005. Criou também a Carta dos Direitos Fundamentais com força jurídica vinculativa. Reúne toda a documentação!"}
+          ]
+        }
+      }
+    }
+  };
+
+  /* ===== ESTADO ===== */
+  let currentCycleKey=null, currentThemeKey=null, currentCycle=null, currentTheme=null, currentLevelIndex=0;
+  let levelState=null, dir=0, carriedItem=false, moveCount=0;
+  let allDeposited=false, doorPos=null, doorQuizOpen=false;
+  let moveHistory=[];
+
+  function saveStateSnapshot(){
+    moveHistory.push({robot:[...levelState.robot],dir,carriedItem,moveCount,items:levelState.items.map(it=>({...it})),allDeposited});
+    if(moveHistory.length>50) moveHistory.shift();
+  }
+  function undoLastMove(){
+    if(!levelState||isQueueMode()||moveHistory.length===0) return;
+    const s=moveHistory.pop();
+    levelState.robot=[...s.robot]; dir=s.dir; carriedItem=s.carriedItem; moveCount=s.moveCount;
+    levelState.items=s.items.map(it=>({...it})); allDeposited=s.allDeposited;
+    updateMoves(); renderGrid(); setFeedback("↩ Movimento desfeito.","info");
+  }
+
+  function computeDoorPos(base){
+    const s=base.size, dep=base.deposit[0]||[0,0], rob=base.robot;
+    const corners=[[0,0],[0,s-1],[s-1,0],[s-1,s-1]];
+    const obs=base.obstacles||[];
+    const free=corners.filter(([r,c])=>{
+      if(obs.some(o=>o[0]===r&&o[1]===c)) return false;
+      if(dep[0]===r&&dep[1]===c) return false;
+      if(rob[0]===r&&rob[1]===c) return false;
+      return true;
+    });
+    const pool=free.length?free:corners;
+    return pool.reduce((best,p)=>{
+      const d=Math.abs(p[0]-dep[0])+Math.abs(p[1]-dep[1]);
+      const bd=Math.abs(best[0]-dep[0])+Math.abs(best[1]-dep[1]);
+      return d>bd?p:best;
+    },pool[0]);
+  }
+
+  let runningQueue=false, queuedCommands=[];
+  let currentMinMoves=null, shouldDanceOnRender=false;
+  let stuckMoves=0, lastItemCount=0;
+  const STUCK_THRESHOLD=8;
+  const DIR_ARROWS=["⬆️","➡️","⬇️","⬅️"];
+  const OPT_CACHE=new Map();
+  let isMuted=false, superEasy1c=false;
+
+  const menuScreen=$("menu-screen"), themes1cScreen=$("themes-1c"), themes2cScreen=$("themes-2c");
+  const themes3cScreen=$("themes-3c"), gameScreen=$("game-screen");
+  const allScreens=[menuScreen,themes1cScreen,themes2cScreen,themes3cScreen,gameScreen];
+
+  function showScreen(screen){
+    allScreens.forEach(s=>{ if(!s) return; s.classList.add("hidden"); s.classList.remove("active"); });
+    if(!screen) return;
+    screen.classList.remove("hidden"); void screen.offsetWidth; screen.classList.add("active");
+    animateCardsIn(screen);
+  }
+  function animateCardsIn(screen){
+    if(!screen) return;
+    screen.querySelectorAll(".cycle-card,.theme-card").forEach((el,i)=>{
+      el.classList.remove("card-anim"); el.style.animationDelay=(i*45)+"ms";
+      void el.offsetWidth; el.classList.add("card-anim");
+    });
+  }
+
+  const STORAGE_KEY="eu_game_progress_v1";
+  const SUPER_EASY_KEY="eu_game_supereasy_v1";
+  const DARK_KEY="eu_game_dark_v1";
+
+  function loadAllProgress(){ try{ const r=localStorage.getItem(STORAGE_KEY); return r?JSON.parse(r):{}; }catch(e){ return {}; } }
+  function saveAllProgress(obj){ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(obj)); }catch(e){} }
+  function effectiveCycleKey(ck){ return(ck==="1c"&&superEasy1c)?"1c_se":ck; }
+  function levelsFor(ck,theme){
+    if(ck==="1c"&&superEasy1c&&theme?.superEasyLevels?.length) return theme.superEasyLevels;
+    return theme?.levels||[];
+  }
+  function loadProgress(ck,tk){
+    ck=effectiveCycleKey(ck);
+    const all=loadAllProgress();
+    if(!all[ck]||!all[ck][tk]) return{currentLevelIndex:0,levels:{}};
+    const d=all[ck][tk];
+    if(!d.levels) d.levels={};
+    if(typeof d.currentLevelIndex!=="number") d.currentLevelIndex=0;
+    return d;
+  }
+  function saveProgress(ck,tk,data){
+    ck=effectiveCycleKey(ck);
+    const all=loadAllProgress();
+    if(!all[ck]) all[ck]={};
+    all[ck][tk]=data; saveAllProgress(all);
+  }
+
+  function updateThemeProgressUI(){
+    document.querySelectorAll(".theme-card").forEach(card=>{
+      const ck=card.getAttribute("data-cycle"), tk=card.getAttribute("data-theme");
+      const theme=GAME_DATA[ck]?.themes[tk]; if(!theme) return;
+      const lvls=levelsFor(ck,theme);
+      const prog=loadProgress(ck,tk);
+      const done=Object.values(prog.levels||{}).filter(l=>l.completed).length;
+      const total=lvls.length;
+      const pct=total>0?Math.min(100,Math.round(done/total*100)):0;
+      const bar=card.querySelector(".theme-progress-bar");
+      if(bar) bar.style.width=pct+"%";
+      // atualiza contagem de níveis
+      let countEl=card.querySelector(".theme-level-count");
+      if(!countEl){
+        countEl=document.createElement("div");
+        countEl.className="theme-level-count";
+        const progressEl=card.querySelector(".theme-progress");
+        if(progressEl) card.insertBefore(countEl,progressEl);
+      }
+      const allDone=done===total&&total>0;
+      countEl.innerHTML=allDone
+        ? `✅ ${total} níveis — concluído!`
+        : `📋 ${done} / ${total} níveis`;
+    });
+  }
+  function updateSideProgress(){
+    ["1c","2c","3c"].forEach(ck=>{
+      const cycle=GAME_DATA[ck]; if(!cycle) return;
+      let completed=0, total=0;
+      Object.entries(cycle.themes).forEach(([tk,theme])=>{
+        const lvls=levelsFor(ck,theme);
+        const prog=loadProgress(ck,tk);
+        const done=Object.values(prog.levels||{}).filter(l=>l.completed).length;
+        if(done===lvls.length&&lvls.length>0) completed++;
+        total++;
+      });
+      const el=$("side-prog-"+ck); if(el) el.textContent=completed+" / "+total+" temas";
+    });
+  }
+
+  /* BFS optimal — conta movimentos, viragens, COLLECT e DROP como o jogo real,
+     incluindo o movimento final até à porta de saída */
+  function bfsOptimal(base, door){
+    door=door||computeDoorPos(base);
+    const key=JSON.stringify({r:base.robot,it:base.items,dep:base.deposit,ob:base.obstacles,sz:base.size,door});
+    if(OPT_CACHE.has(key)) return OPT_CACHE.get(key);
+    const s=base.size;
+    const isObs=(r,c)=>(base.obstacles||[]).some(o=>o[0]===r&&o[1]===c);
+    const dep=base.deposit[0]||[0,0];
+
+    // Estado: posição, direção, itens restantes, a carregar, movimentos
+    // dir: 0=cima,1=direita,2=baixo,3=esquerda (igual ao jogo)
+    function stKey(rob,d,items,carry){
+      return rob[0]+","+rob[1]+","+d+","+(carry?1:0)+"|"+items.filter(i=>!i.collected).map(i=>i.r+","+i.c).sort().join(";");
+    }
+    const items0=base.items.map(([r,c])=>({r,c,collected:false}));
+    const start={rob:[...base.robot],d:0,items:items0,carry:false,moves:0};
+    const visited=new Set(); visited.add(stKey(start.rob,start.d,start.items,start.carry));
+    const queue=[start];
+    let best=null;
+    const DR=[[-1,0],[0,1],[1,0],[0,-1]]; // cima,direita,baixo,esquerda
+
+    while(queue.length){
+      const cur=queue.shift();
+      if(best!==null&&cur.moves>=best) continue;
+      if(cur.moves>120) continue;
+
+      const remaining=cur.items.filter(i=>!i.collected);
+      const [rr,rc]=cur.rob;
+      // Condição de vitória: tudo depositado E robot na porta
+      if(remaining.length===0&&!cur.carry&&rr===door[0]&&rc===door[1]){ best=cur.moves; continue; }
+
+      // MOVER para a frente
+      const [fdr,fdc]=DR[cur.d];
+      const [fr,fc]=[rr+fdr,rc+fdc];
+      if(fr>=0&&fr<s&&fc>=0&&fc<s&&!isObs(fr,fc)){
+        const sk=stKey([fr,fc],cur.d,cur.items,cur.carry);
+        if(!visited.has(sk)){ visited.add(sk); queue.push({rob:[fr,fc],d:cur.d,items:cur.items.map(i=>({...i})),carry:cur.carry,moves:cur.moves+1}); }
+      }
+
+      // VIRAR esquerda
+      const dl=(cur.d+3)%4;
+      const skl=stKey(cur.rob,dl,cur.items,cur.carry);
+      if(!visited.has(skl)){ visited.add(skl); queue.push({rob:[...cur.rob],d:dl,items:cur.items.map(i=>({...i})),carry:cur.carry,moves:cur.moves+1}); }
+
+      // VIRAR direita
+      const dr=(cur.d+1)%4;
+      const skr=stKey(cur.rob,dr,cur.items,cur.carry);
+      if(!visited.has(skr)){ visited.add(skr); queue.push({rob:[...cur.rob],d:dr,items:cur.items.map(i=>({...i})),carry:cur.carry,moves:cur.moves+1}); }
+
+      // RECOLHER — só se não carrega e há item na posição atual
+      if(!cur.carry){
+        const idx=cur.items.findIndex(i=>!i.collected&&i.r===rr&&i.c===rc);
+        if(idx>=0){
+          const ni=cur.items.map(i=>({...i})); ni[idx].collected=true;
+          const sk=stKey(cur.rob,cur.d,ni,true);
+          if(!visited.has(sk)){ visited.add(sk); queue.push({rob:[...cur.rob],d:cur.d,items:ni,carry:true,moves:cur.moves+1}); }
+        }
+      }
+
+      // DEPOSITAR — só se carrega e está no depósito
+      if(cur.carry&&rr===dep[0]&&rc===dep[1]){
+        const sk=stKey(cur.rob,cur.d,cur.items,false);
+        if(!visited.has(sk)){ visited.add(sk); queue.push({rob:[...cur.rob],d:cur.d,items:cur.items.map(i=>({...i})),carry:false,moves:cur.moves+1}); }
+      }
+    }
+    OPT_CACHE.set(key,best);
+    return best;
+  }
+
+  function isQueueMode(){ return currentCycle?.mode==="queue"; }
+
+  function loadLevel(idx){
+    if(!currentTheme) return;
+    const lvls=levelsFor(currentCycleKey,currentTheme);
+    if(idx>=lvls.length){ showAllCompleted(); return; }
+    currentLevelIndex=idx;
+    const base=lvls[idx];
+    const cr=$("crumb-level"); if(cr) cr.textContent="Nível "+(idx+1)+" de "+lvls.length;
+    const ct=$("crumb-theme"); if(ct) ct.textContent=currentTheme.name+" "+currentTheme.emoji;
+    dir=0; carriedItem=false; moveCount=0; allDeposited=false; doorQuizOpen=false;
+    moveHistory=[]; runningQueue=false; queuedCommands=[];
+
+    levelState={
+      robot:[...base.robot],
+      items:base.items.map(([r,c])=>({r,c,collected:false})),
+      deposit:base.deposit[0]||[0,0],
+      obstacles:base.obstacles||[],
+      size:base.size
+    };
+    doorPos=computeDoorPos(base);
+
+    const em=$("level-emoji"); if(em) em.textContent=currentTheme.emoji.split("")[0]||"⭐";
+    const tt=$("level-title-text"); if(tt) tt.textContent=currentTheme.name+" — Nível "+(idx+1)+" de "+lvls.length;
+    const ld=$("level-desc"); if(ld) ld.textContent=base.desc||"";
+    const pd=$("pill-difficulty"); if(pd) pd.textContent="Dificuldade: "+(base.difficulty||"—");
+
+    currentMinMoves=bfsOptimal(base,doorPos);
+    const to=$("tag-optimal"); if(to) to.textContent="🏁 Ótimo: "+(currentMinMoves!==null?currentMinMoves+" mov.":"—");
+    updateMoves();
+    stuckMoves=0; lastItemCount=levelState.items.length;
+
+    const qb=$("queue-box");
+    if(isQueueMode()){ if(qb) qb.classList.remove("hidden"); updateQueueUI(); }
+    else{ if(qb) qb.classList.add("hidden"); }
+    const ub=$("btn-undo-direct"); if(ub) ub.style.display=isQueueMode()?"none":"inline-flex";
+
+    renderGrid(); setFeedback("📍 Nível "+(idx+1)+" de "+lvls.length+" — "+currentTheme.name,"info");
+
+    const g=$("grid"); if(g){ g.classList.remove("level-fade-in"); void g.offsetWidth; g.classList.add("level-fade-in"); }
+    updateThemeProgressUI(); updateSideProgress();
+  }
+
+  function updateMoves(){
+    const mv=$("moves"); if(mv) mv.textContent="Movimentos: "+moveCount;
+  }
+
+  function renderGrid(){
+    if(!levelState) return;
+    const g=$("grid"); if(!g) return;
+    const {robot,items,obstacles,deposit,size}=levelState;
+    const sizeClass=size>=9?"huge":size>=7?"big":"";
+    g.className="grid"+(sizeClass?" "+sizeClass:"");
+    g.style.gridTemplateColumns=`repeat(${size},${sizeClass==="huge"?38:sizeClass==="big"?44:52}px)`;
+    g.innerHTML="";
+
+    const itemEms=currentTheme?.itemEmojis||["📜","⭐","🤝"];
+    const obsEm=currentTheme?.obstacleEmoji||"🚧";
+
+    for(let r=0;r<size;r++){
+      for(let c=0;c<size;c++){
+        const cell=document.createElement("div");
+        cell.className="cell";
+        const isRobot=robot[0]===r&&robot[1]===c;
+        const isObs=obstacles.some(o=>o[0]===r&&o[1]===c);
+        const isDep=deposit[0]===r&&deposit[1]===c;
+        const itemIdx=items.findIndex(it=>!it.collected&&it.r===r&&it.c===c);
+        const isDoor=doorPos&&doorPos[0]===r&&doorPos[1]===c;
+
+        if(isObs){ cell.classList.add("obstacle"); cell.textContent=obsEm; }
+        else if(isDoor&&allDeposited){
+          cell.classList.add("door-cell");
+          cell.classList.add(doorQuizOpen?"door-open":"door-locked");
+          const wrap=document.createElement("div"); wrap.className="door-svg-wrap";
+          const panel=document.createElement("div"); panel.className="door-panel";
+          panel.style.cssText="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;";
+          panel.textContent=doorQuizOpen?"🚪":"🔒";
+          wrap.appendChild(panel); cell.appendChild(wrap);
+        }
+        else if(isRobot){
+          cell.classList.add("robot-cell");
+          if(carriedItem) cell.classList.add("robot-carrying");
+          const angle=dir*90;
+          const badge=carriedItem?`<span class="carry-badge">${itemEms[0]}</span>`:"";
+          const itemBadge=itemIdx>=0?`<span class="item-under-robot">${itemEms[itemIdx%itemEms.length]}</span>`:"";
+          cell.innerHTML=`
+            <div class="robot-icon" style="transform:rotate(${angle}deg);">
+              <span class="robot-icon-inner">${EU_ROBOT_SVG}</span>
+            </div>
+            <span class="robot-dir">${DIR_ARROWS[dir]}</span>${badge}${itemBadge}`;
+          setTimeout(()=>{
+            const icon=cell.querySelector(".robot-icon");
+            if(icon&&!shouldDanceOnRender){ icon.classList.add("robot-icon-bounce"); icon.addEventListener("animationend",()=>icon.classList.remove("robot-icon-bounce"),{once:true}); }
+          },10);
+        }
+        else if(isDep){ cell.classList.add("deposit"); cell.textContent="🏛️"; }
+        else if(itemIdx>=0){ cell.classList.add("item"); cell.textContent=itemEms[itemIdx%itemEms.length]; }
+        g.appendChild(cell);
+      }
+    }
+    shouldDanceOnRender=false;
+    if(shouldDanceOnRender){
+      const ri=document.querySelector(".robot-cell .robot-icon");
+      if(ri){ ri.classList.add("robot-dance"); setTimeout(()=>ri.classList.remove("robot-dance"),1000); }
+    }
+    const ht=$("hint-text");
+    if(ht){
+      const rem=items.filter(i=>!i.collected).length;
+      if(rem>0) ht.textContent=`${rem} documento${rem>1?"s":""} por recolher. Deposita no 🏛️`;
+      else if(!allDeposited) ht.textContent="Entrega o último documento ao 🏛️!";
+      else ht.textContent="🎉 Todos os documentos entregues! Dirige-te à saída 🚪";
+    }
+  }
+
+  function setFeedback(msg,type="info"){
+    const fb=$("feedback"); if(!fb) return;
+    fb.className="feedback-box feedback-"+type; fb.textContent=msg;
+  }
+  function playSound(id){ if(isMuted) return; try{ const a=$(id); if(a){ a.currentTime=0; a.play().catch(()=>{}); } }catch(e){} }
+
+  function runSingleCommand(cmd){
+    if(!levelState||runningQueue) return;
+    if(doorQuizOpen) return;
+    if(!isQueueMode()) saveStateSnapshot();
+    if(cmd==="MOVE") moveForward();
+    else if(cmd==="BACK") moveBackward();
+    else if(cmd==="LEFT"){ dir=(dir+3)%4; playSound("soundMove"); setFeedback("↩️ Virou à esquerda.","info"); moveCount++; updateMoves(); renderGrid(); }
+    else if(cmd==="RIGHT"){ dir=(dir+1)%4; playSound("soundMove"); setFeedback("↪️ Virou à direita.","info"); moveCount++; updateMoves(); renderGrid(); }
+    else if(cmd==="COLLECT") grabItem();
+    else if(cmd==="DROP") dropItem();
+  }
+
+  function moveForward(){
+    const {robot,obstacles,size}=levelState;
+    const [r,c]=robot; let nr=r,nc=c;
+    if(dir===0)nr--;else if(dir===1)nc++;else if(dir===2)nr++;else nc--;
+    if(nr<0||nr>=size||nc<0||nc>=size){ playSound("soundBump"); setFeedback("❌ O robot não pode sair do tabuleiro.","err"); renderGrid(); return; }
+    if(obstacles.some(o=>o[0]===nr&&o[1]===nc)){ playSound("soundBump"); setFeedback("⛔ Há um obstáculo! Contorna-o.","warn"); renderGrid(); return; }
+    if(doorPos&&nr===doorPos[0]&&nc===doorPos[1]&&!allDeposited){ playSound("soundBump"); setFeedback("🔒 Porta fechada! Entrega todos os documentos primeiro.","warn"); renderGrid(); return; }
+    robot[0]=nr; robot[1]=nc; moveCount++; updateMoves(); playSound("soundMove"); setFeedback("⬆️ Robot avançou.","info");
+    renderGrid(); checkDoor(nr,nc);
+  }
+
+  function moveBackward(){
+    const {robot,obstacles,size}=levelState;
+    const [r,c]=robot; let nr=r,nc=c;
+    if(dir===0)nr++;else if(dir===1)nc--;else if(dir===2)nr--;else nc++;
+    if(nr<0||nr>=size||nc<0||nc>=size){ playSound("soundBump"); setFeedback("❌ O robot não pode sair do tabuleiro.","err"); renderGrid(); return; }
+    if(obstacles.some(o=>o[0]===nr&&o[1]===nc)){ playSound("soundBump"); setFeedback("⛔ Há um obstáculo! Contorna-o.","warn"); renderGrid(); return; }
+    if(doorPos&&nr===doorPos[0]&&nc===doorPos[1]&&!allDeposited){ playSound("soundBump"); setFeedback("🔒 Porta fechada! Entrega todos os documentos primeiro.","warn"); renderGrid(); return; }
+    robot[0]=nr; robot[1]=nc; moveCount++; updateMoves(); playSound("soundMove"); setFeedback("⬇️ Robot recuou.","info");
+    renderGrid(); checkDoor(nr,nc);
+  }
+
+  function grabItem(){
+    const {robot,items}=levelState;
+    const [r,c]=robot;
+    if(carriedItem){ playSound("soundError"); setFeedback("✋ Já transportas um documento. Deposita primeiro.","warn"); renderGrid(); return; }
+    const idx=items.findIndex(it=>!it.collected&&it.r===r&&it.c===c);
+    if(idx===-1){ playSound("soundError"); setFeedback("❌ Não há nenhum documento aqui para recolher.","err"); renderGrid(); return; }
+    items[idx].collected=true; carriedItem=true;
+    moveCount++; updateMoves(); playSound("soundSuccess"); setFeedback("✅ Documento recolhido! Leva ao 🏛️","ok"); renderGrid();
+  }
+
+  function dropItem(){
+    const {robot,items,deposit}=levelState;
+    const [r,c]=robot;
+    if(!carriedItem){ playSound("soundError"); setFeedback("❌ Não estás a transportar nenhum documento.","err"); renderGrid(); return; }
+    if(r!==deposit[0]||c!==deposit[1]){ playSound("soundError"); setFeedback("🏛️ Tens de estar no arquivo para depositar!","warn"); renderGrid(); return; }
+    carriedItem=false; moveCount++; updateMoves(); playSound("soundSuccess");
+    const rem=items.filter(i=>!i.collected).length;
+    if(rem===0){
+      allDeposited=true; renderGrid();
+      setFeedback("🚪 Todos os documentos entregues! Dirige-te à saída 🚪","ok");
+    } else {
+      setFeedback("📥 Depositado! Faltam "+rem+" documento(s).","ok"); renderGrid();
+    }
+  }
+
+  function checkDoor(nr,nc){
+    if(!allDeposited||doorQuizOpen||!doorPos) return;
+    if(nr===doorPos[0]&&nc===doorPos[1]){
+      doorQuizOpen=true; runningQueue=false; renderGrid();
+      setTimeout(()=>openEUQuiz(),400);
+    }
+  }
+
+  function checkWin(){
+    /* mantido por compatibilidade mas a lógica está agora em dropItem/checkDoor */
+  }
+
+  function openEUQuiz(usedIndices){
+    usedIndices=usedIndices||[];
+    const quizList=QUIZ_DATA[currentThemeKey]||[];
+    if(!quizList.length){ completeLevel(); return; }
+
+    /* Escolhe uma pergunta ainda não usada nesta ronda */
+    const available=quizList.map((_,i)=>i).filter(i=>!usedIndices.includes(i));
+    /* Se já usou todas, recomeça */
+    const pool=available.length?available:quizList.map((_,i)=>i);
+    const qIdx=pool[Math.floor(Math.random()*pool.length)];
+    const q=quizList[qIdx];
+    const newUsed=[...usedIndices,qIdx];
+
+    const opts=q.ops.map((text,i)=>({text,correct:i===q.a}));
+    for(let i=opts.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[opts[i],opts[j]]=[opts[j],opts[i]];}
+
+    let popup=document.getElementById("popup-door-quiz");
+    let inner=document.getElementById("popup-door-quiz-inner");
+    if(!popup){
+      popup=document.createElement("div");
+      popup.id="popup-door-quiz";
+      popup.style.cssText="position:fixed;inset:0;background:rgba(5,15,31,0.75);display:flex;align-items:center;justify-content:center;z-index:9500;";
+      inner=document.createElement("div");
+      inner.id="popup-door-quiz-inner";
+      inner.style.cssText="background:#0a1f3c;border:2px solid #f5c518;border-radius:14px;padding:22px 24px;max-width:420px;width:92%;text-align:left;box-shadow:0 8px 40px rgba(0,0,0,.5);font-family:'Cinzel',serif;color:#ffd700;position:relative;";
+      popup.appendChild(inner);
+      document.body.appendChild(popup);
+    }
+    popup.style.display="flex";
+
+    inner.innerHTML=`
+      <div style="font-size:2rem;text-align:center;margin-bottom:6px;">🚪</div>
+      <div style="font-size:.75rem;color:#f5c518;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;font-weight:700;">Porta bloqueada — responde para passar!</div>
+      <div style="font-size:.88rem;color:#ffd700;font-weight:700;line-height:1.55;margin-bottom:14px;font-family:'Lora',serif;">${q.q}</div>
+      <div id="dq-opts" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+        ${opts.map(opt=>`<button data-correct="${opt.correct}" style="padding:8px 10px;border-radius:5px;border:1.5px solid rgba(245,197,24,0.4);background:rgba(26,54,96,0.6);color:#ffd700;font-size:.78rem;cursor:pointer;font-family:'Lora',serif;text-align:left;line-height:1.4;">${opt.text}</button>`).join("")}
+      </div>
+      <div id="dq-feedback" style="font-size:.78rem;font-weight:700;min-height:20px;margin-top:10px;color:#ffd700;"></div>`;
+
+    inner.querySelectorAll("#dq-opts button").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        const ok=btn.getAttribute("data-correct")==="true";
+        const fb=inner.querySelector("#dq-feedback");
+        if(ok){
+          btn.style.background="rgba(22,163,74,0.35)"; btn.style.borderColor="#4ade80"; btn.style.color="#4ade80";
+          inner.querySelectorAll("#dq-opts button").forEach(b=>{b.disabled=true;});
+          if(fb){fb.style.color="#4ade80";fb.textContent="✅ Correto! A porta abre-se! 🎉";}
+          playSound("soundSuccess");
+          setTimeout(()=>{ popup.style.display="none"; doorQuizOpen=false; completeLevel(); },900);
+        } else {
+          /* Errou — desativa tudo e mostra nova pergunta após breve pausa */
+          inner.querySelectorAll("#dq-opts button").forEach(b=>{b.disabled=true;b.style.pointerEvents="none";});
+          btn.style.background="rgba(192,57,43,0.3)"; btn.style.borderColor="#f87171"; btn.style.color="#f87171";
+          if(fb){fb.style.color="#f87171";fb.textContent="❌ Errado! Vem aí outra pergunta...";}
+          playSound("soundError");
+          setTimeout(()=>openEUQuiz(newUsed), 1200);
+        }
+      });
+    });
+  }
+
+  function completeLevel(){
+    playSound("soundVictory");
+    shouldDanceOnRender=true; renderGrid();
+    const lvls=levelsFor(currentCycleKey,currentTheme);
+    const prog=loadProgress(currentCycleKey,currentThemeKey);
+    if(!prog.levels) prog.levels={};
+    const li=currentLevelIndex;
+    if(!prog.levels[li]) prog.levels[li]={};
+    prog.levels[li].completed=true;
+    prog.levels[li].bestMoves=Math.min(moveCount, prog.levels[li].bestMoves||99999);
+    prog.currentLevelIndex=Math.min(li+1,lvls.length-1);
+    saveProgress(currentCycleKey,currentThemeKey,prog);
+    updateThemeProgressUI(); updateSideProgress();
+
+    const stars=currentMinMoves!==null?
+      (moveCount<=currentMinMoves?3:moveCount<=currentMinMoves*1.5?2:1):1;
+    showPopup(stars, lvls[li]);
+  }
+
+  /* ===== QUIZ POR TEMA E NÍVEL ===== */
+  const QUIZ_DATA={
+    schuman:[
+      {q:"Em que data foi feita a Declaração Schuman?",ops:["9 de maio de 1950","18 de abril de 1951","25 de março de 1957","1 de janeiro de 1958"],a:0},
+      {q:"Quem foi o arquiteto intelectual do Plano Schuman?",ops:["Robert Schuman","Konrad Adenauer","Jean Monnet","Paul-Henri Spaak"],a:2},
+      {q:"Quantos países fundadores tinha a CECA?",ops:["4","5","6","7"],a:2}
+    ],
+    ceca:[
+      {q:"Quando entrou em vigor o Tratado de Paris (CECA)?",ops:["1950","1951","1952","1957"],a:2},
+      {q:"Qual era a sede da Alta Autoridade da CECA?",ops:["Bruxelas","Estrasburgo","Luxemburgo","Paris"],a:2},
+      {q:"Durante quantos anos vigorou o Tratado de Paris?",ops:["25 anos","40 anos","50 anos","100 anos"],a:2}
+    ],
+    roma:[
+      {q:"Quando foram assinados os Tratados de Roma?",ops:["9 maio 1950","18 abril 1951","25 março 1957","1 janeiro 1958"],a:2},
+      {q:"O que criou o Tratado de Roma além da CEE?",ops:["NATO","Euratom","EFTA","ONU"],a:1},
+      {q:"Qual país recusou assinar os Tratados de Roma?",ops:["Itália","Bélgica","Reino Unido","Luxemburgo"],a:2}
+    ],
+    schengen:[
+      {q:"Em que ano foi assinado o Acordo de Schengen?",ops:["1980","1983","1985","1990"],a:2},
+      {q:"Quantos países tem atualmente o Espaço Schengen?",ops:["25","27","29","31"],a:2},
+      {q:"Em que ano Portugal suprimiu as fronteiras internas Schengen?",ops:["1991","1993","1995","1997"],a:2}
+    ],
+    maastricht:[
+      {q:"O Tratado de Maastricht transformou a CEE em…",ops:["CECA","UE","NATO","EFTA"],a:1},
+      {q:"Qual país rejeitou o Tratado de Maastricht em 1992?",ops:["França","Irlanda","Dinamarca","Portugal"],a:2},
+      {q:"O Tratado de Maastricht entrou em vigor em…",ops:["1992","1993","1994","1995"],a:1}
+    ],
+    euro:[
+      {q:"Quando o euro foi introduzido como moeda contabilística?",ops:["1995","1997","1999","2001"],a:2},
+      {q:"Quando entraram em circulação as notas e moedas euro?",ops:["1999","2000","2001","2002"],a:3},
+      {q:"Onde fica a sede do Banco Central Europeu (BCE)?",ops:["Bruxelas","Frankfurt","Luxemburgo","Paris"],a:1}
+    ],
+    portugal:[
+      {q:"Quando aderiu Portugal à CEE?",ops:["1 jan 1984","1 jan 1986","1 jan 1988","25 abr 1985"],a:1},
+      {q:"Quantos anos duraram as negociações de adesão de Portugal?",ops:["3 anos","5 anos","7 anos","9 anos"],a:3},
+      {q:"Qual foi a primeira presidência portuguesa do Conselho da UE?",ops:["1988","1990","1992","1995"],a:2}
+    ],
+    alargamento:[
+      {q:"Quantos países aderiram à UE em 2004?",ops:["6","8","10","12"],a:2},
+      {q:"Quando saiu o Reino Unido da UE (Brexit)?",ops:["31 jan 2019","31 jan 2020","31 dez 2020","1 jan 2021"],a:1},
+      {q:"Qual foi o 28.º membro da UE?",ops:["Bulgária","Roménia","Croácia","Macedónia"],a:2}
+    ],
+    lisboa:[
+      {q:"Onde foi assinado o Tratado de Lisboa?",ops:["Palácio da Ajuda","Torre de Belém","Mosteiro dos Jerónimos","Palácio de Queluz"],a:2},
+      {q:"Quando entrou em vigor o Tratado de Lisboa?",ops:["1 jan 2008","1 dez 2009","1 jan 2010","13 dez 2007"],a:1},
+      {q:"Qual país rejeitou o Tratado de Lisboa em referendo em 2008?",ops:["França","Países Baixos","Dinamarca","Irlanda"],a:3}
+    ]
+  };
+
+  let quizAnswered=false, quizCorrect=false;
+
+  const FACTS={
+    schuman:["Robert Schuman nasceu em 1886 no Luxemburgo e era filho de pai francês-loreno. Tornou-se ministro francês em 1948.","Jean Monnet, o verdadeiro arquiteto do plano, nunca ocupou um cargo eleito. Preferiu trabalhar nos bastidores como técnico e visionário.","O 9 de Maio é hoje o Dia da Europa, celebrado em todos os Estados-membros em homenagem à Declaração Schuman de 1950."],
+    ceca:["A CECA foi o primeiro caso de integração supranacional com poderes reais. A Alta Autoridade podia impor taxas às empresas sem passar pelos governos nacionais.","Jean Monnet foi o primeiro presidente da Alta Autoridade da CECA, de 1952 a 1955, renunciando para promover uma Europa mais unida.","O Tratado de Paris que criou a CECA tinha vigência de 50 anos. Expirou em 23 de julho de 2002, sendo as suas competências absorvidas pela CE."],
+    roma:["Os Tratados de Roma foram negociados pelo comité Spaak, liderado pelo belga Paul-Henri Spaak. Duraram cerca de um ano de negociações intensas.","A assinatura dos Tratados de Roma foi televisiva — as câmaras da RAI italiana transmitiram a cerimónia no Capitólio romano a 25 de março de 1957.","O Euratom (Comunidade Europeia da Energia Atómica) foi criado juntamente com a CEE. Ambos entraram em vigor a 1 de janeiro de 1958."],
+    schengen:["O Acordo de Schengen foi assinado num barco no Rio Mosela, na aldeia luxemburguesa de Schengen, precisamente na fronteira entre Luxemburgo, França e Alemanha.","O espaço Schengen tem hoje 29 países, incluindo 4 não membros da UE: Suíça, Noruega, Islândia e Liechtenstein. O RU nunca aderiu ao espaço Schengen.","Portugal aderiu ao Acordo de Schengen em 1991. As fronteiras internas foram efetivamente suprimidas em março de 1995, há três décadas!"],
+    maastricht:["O nome oficial do Tratado de Maastricht é 'Tratado da União Europeia'. Foi assinado na cidade holandesa de Maastricht, capital da província de Limburgo.","O tratado introduziu a cidadania europeia: todos os cidadãos da UE têm o direito de viver, trabalhar e votar nas eleições locais e europeias em qualquer Estado-membro.","Os critérios de convergência para adotar o euro foram estabelecidos em Maastricht: défice público abaixo de 3%, dívida pública abaixo de 60% do PIB, inflação controlada."],
+    euro:["O nome 'euro' foi escolhido em 1995, no Conselho Europeu de Madrid. Antes chamava-se ECU (European Currency Unit), uma moeda contabilística desde 1979.","As notas de euro não têm elementos nacionais — mostram janelas, portas e pontes fictícias. Só as moedas têm uma face nacional e uma face europeia comum.","Portugal foi um dos 11 países fundadores do euro em 1999. O escudo circulou em simultâneo com o euro durante 2 meses, até 28 de fevereiro de 2002."],
+    portugal:["Portugal formalizou o pedido de adesão à CEE em março de 1977, pouco mais de dois anos após o 25 de Abril de 1974. As negociações duraram quase 9 anos.","A adesão de Portugal em 1986 foi possibilitada pela democratização do país. A CEE exigia que os candidatos fossem democracias estáveis com economias de mercado.","Portugal recebeu o maior montante per capita de fundos estruturais europeus na primeira vaga de coesão. Isso permitiu modernizar autoestradas, escolas e hospitais nos anos 90."],
+    alargamento:["O maior alargamento único da história da UE ocorreu em 1 de maio de 2004, com a adesão simultânea de 10 países, 8 dos quais da Europa Central e Oriental.","O processo de alargamento é regulado pelo 'Processo de Copenhaga', com critérios definidos em 1993: democracia, Estado de direito, economia de mercado e capacidade de aplicar o direito da UE.","A Croácia tornou-se o 28.º membro da UE em 1 de julho de 2013. Com o Brexit, a UE passou para 27 membros em 2020. Há atualmente vários países candidatos, incluindo a Ucrânia."],
+    lisboa:["O Tratado de Lisboa foi assinado no Mosteiro dos Jerónimos, em Belém, Lisboa, a 13 de dezembro de 2007. Entrou em vigor a 1 de dezembro de 2009.","O tratado criou o cargo de Presidente do Conselho Europeu, com mandato de 2,5 anos renovável. Herman Van Rompuy foi o primeiro, seguido de Donald Tusk e Charles Michel.","A Carta dos Direitos Fundamentais da UE, proclamada em 2000, tornou-se juridicamente vinculativa com o Tratado de Lisboa, equiparada aos tratados europeus."]
+  };
+
+  function showPopup(stars, levelBase){
+    const pop=$("popup-complete"); if(!pop) return;
+    const pt=$("popup-title"); if(pt) pt.textContent=stars===3?"Missão perfeita! ⭐⭐⭐":stars===2?"Muito bem! ⭐⭐":"Missão cumprida! ⭐";
+    const ptxt=$("popup-text"); if(ptxt) ptxt.textContent=stars===3?`Resolveste em ${moveCount} movimentos — o mínimo possível!`:`Resolveste em ${moveCount} movimentos${currentMinMoves!==null?" (mínimo: "+currentMinMoves+")":""}.`;
+    [1,2,3].forEach(i=>{
+      const s=$("popup-star"+i); if(s){ s.classList.remove("lit"); if(i<=stars) setTimeout(()=>s.classList.add("lit"),i*200); }
+    });
+    const pf=$("popup-fact"); const facts=FACTS[currentThemeKey]||[];
+    if(facts.length){ pf.style.display="block"; pf.textContent="💡 "+facts[currentLevelIndex%facts.length]; } else pf.style.display="none";
+
+    /* ── FACTO ── */
+    const qs=$("popup-quiz-section"); if(qs) qs.style.display="none";
+    const pnext=$("popup-next"); if(pnext) pnext.style.display="inline-flex";
+
+    pop.classList.remove("hidden");
+    launchConfetti();
+  }
+
+  function launchConfetti(){
+    const wrap=$("popup-confetti"); if(!wrap) return;
+    wrap.innerHTML="";
+    const colors=["#f5c518","#ffd700","#003399","#ffffff","#e8b800"];
+    for(let i=0;i<30;i++){
+      const p=document.createElement("div");
+      const x=Math.random()*100, y=-10, size=Math.random()*6+4;
+      const color=colors[Math.floor(Math.random()*colors.length)];
+      const dur=Math.random()*1.5+1, del=Math.random()*0.8;
+      p.style.cssText=`position:absolute;left:${x}%;top:${y}%;width:${size}px;height:${size}px;background:${color};border-radius:50%;animation:confettiFall ${dur}s ${del}s ease-in forwards;pointer-events:none;`;
+      wrap.appendChild(p);
+    }
+    if(!document.getElementById("confettiStyle")){
+      const style=document.createElement("style");
+      style.id="confettiStyle";
+      style.textContent=`@keyframes confettiFall{to{top:110%;opacity:0;transform:rotate(360deg) translateX(${Math.random()*60-30}px);}}`;
+      document.head.appendChild(style);
+    }
+  }
+
+  function showAllCompleted(){
+    setFeedback("🏆 Parabéns! Completaste todos os níveis deste tema!","ok");
+    shouldDanceOnRender=true; renderGrid();
+    const pop=$("popup-complete"); if(!pop) return;
+    const pt=$("popup-title"); if(pt) pt.textContent="Tema concluído! 🏆";
+    const ptxt=$("popup-text"); if(ptxt) ptxt.textContent="Completaste todos os níveis! A história da UE está preservada.";
+    [1,2,3].forEach(i=>{ const s=$("popup-star"+i); if(s){ s.classList.remove("lit"); setTimeout(()=>s.classList.add("lit"),i*200); } });
+    const pf=$("popup-fact"); if(pf) pf.style.display="none";
+    pop.classList.remove("hidden"); launchConfetti();
+  }
+
+  /* QUEUE MODE */
+  function renderQueue(){
+    const qc=$("queue-commands"); if(!qc) return;
+    qc.innerHTML="";
+    queuedCommands.forEach((cmd,i)=>{
+      const span=document.createElement("span"); span.className="queue-cmd";
+      span.textContent=cmd.label; qc.appendChild(span);
+    });
+    const rb=$("btn-run-queue"), ub=$("btn-undo-queue"), cb=$("btn-clear-queue");
+    const has=queuedCommands.length>0;
+    if(rb) rb.style.display=has?"inline-flex":"none";
+    if(ub) ub.style.display=has?"inline-flex":"none";
+    if(cb) cb.style.display=has?"inline-flex":"none";
+  }
+  function updateQueueUI(){ renderQueue(); }
+
+  async function executeQueue(){
+    if(runningQueue||queuedCommands.length===0) return;
+    runningQueue=true;
+    const cmds=[...queuedCommands]; queuedCommands=[];
+    renderQueue();
+    for(const cmd of cmds){
+      if(!runningQueue) break;
+      runSingleCommand(cmd.cmd);
+      await new Promise(r=>setTimeout(r,320));
+    }
+    runningQueue=false;
+  }
+
+  /* POPUP BUTTONS */
+  const pnext=$("popup-next");
+  if(pnext) pnext.addEventListener("click",()=>{
+    const pop=$("popup-complete"); if(pop) pop.classList.add("hidden");
+    const lvls=levelsFor(currentCycleKey,currentTheme);
+    if(currentLevelIndex+1<lvls.length){ loadLevel(currentLevelIndex+1); }
+    else{
+      const s=currentCycleKey==="1c"?themes1cScreen:currentCycleKey==="2c"?themes2cScreen:themes3cScreen;
+      showScreen(s);
+    }
+  });
+  const pmenu=$("popup-menu");
+  if(pmenu) pmenu.addEventListener("click",()=>{ const pop=$("popup-complete"); if(pop) pop.classList.add("hidden"); showScreen(menuScreen); });
+
+  /* CMD BUTTONS */
+  document.querySelectorAll(".cmd-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const cmd=btn.getAttribute("data-cmd"); if(!cmd||!currentTheme||!levelState) return;
+      if(isQueueMode()){
+        const lm={MOVE:"⬆️ Avançar",LEFT:"↩️ Virar esq.",RIGHT:"↪️ Virar dir.",COLLECT:"✋ Recolher",DROP:"📥 Depositar",BACK:"⬇️ Recuar"};
+        queuedCommands.push({cmd,label:lm[cmd]||cmd}); renderQueue(); setFeedback("✅ Comando adicionado.","info");
+      } else { runSingleCommand(cmd); }
+    });
+  });
+
+  const runQ=$("btn-run-queue"); if(runQ) runQ.addEventListener("click",executeQueue);
+  const undQ=$("btn-undo-queue"); if(undQ) undQ.addEventListener("click",()=>{ if(queuedCommands.length>0){ queuedCommands.pop(); renderQueue(); setFeedback("↩ Último comando removido.","info"); } });
+  const clrQ=$("btn-clear-queue"); if(clrQ) clrQ.addEventListener("click",()=>{ queuedCommands=[]; renderQueue(); setFeedback("🧹 Sequência limpa.","info"); });
+
+  /* BACK BUTTONS */
+  ["btn-back-menu-1c","btn-back-menu-2c","btn-back-menu-3c"].forEach(id=>{
+    const b=$(id); if(b) b.addEventListener("click",()=>showScreen(menuScreen));
+  });
+  const bmm=$("btn-main-menu"); if(bmm) bmm.addEventListener("click",()=>showScreen(menuScreen));
+  const bbt=$("btn-back-themes"); if(bbt) bbt.addEventListener("click",()=>{
+    const s=currentCycleKey==="1c"?themes1cScreen:currentCycleKey==="2c"?themes2cScreen:themes3cScreen;
+    showScreen(s);
+  });
+
+  /* CYCLE CARDS */
+  $("btn-cycle-1c")?.addEventListener("click",()=>showScreen(themes1cScreen));
+  $("btn-cycle-2c")?.addEventListener("click",()=>showScreen(themes2cScreen));
+  $("btn-cycle-3c")?.addEventListener("click",()=>showScreen(themes3cScreen));
+
+  /* SIDEBAR */
+  $("side-home")?.addEventListener("click",()=>showScreen(menuScreen));
+  $("side-1c")?.addEventListener("click",()=>showScreen(themes1cScreen));
+  $("side-2c")?.addEventListener("click",()=>showScreen(themes2cScreen));
+  $("side-3c")?.addEventListener("click",()=>showScreen(themes3cScreen));
+
+  /* THEME CARDS */
+  document.querySelectorAll(".theme-card").forEach(card=>{
+    card.addEventListener("click",()=>{
+      const ck=card.getAttribute("data-cycle"), tk=card.getAttribute("data-theme");
+      currentCycleKey=ck; currentThemeKey=tk;
+      currentCycle=GAME_DATA[ck]; currentTheme=currentCycle.themes[tk];
+      const progress=loadProgress(ck,tk);
+      const lvls=levelsFor(ck,currentTheme);
+      currentLevelIndex=Math.min(progress.currentLevelIndex||0,Math.max(0,lvls.length-1));
+      const ct=$("crumb-theme"); if(ct) ct.textContent=currentTheme.name+" "+currentTheme.emoji;
+      showScreen(gameScreen); loadLevel(currentLevelIndex);
+    });
+  });
+
+  /* RESET BUTTONS */
+  function resetQueue(){ runningQueue=false; queuedCommands=[]; renderQueue(); }
+
+  function doConfirm(msg,cb){
+    const box=document.createElement("div");
+    box.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:9999;";
+    box.innerHTML=`<div style="background:#0a1f3c;padding:18px 22px;border-radius:12px;text-align:center;max-width:320px;border:2px solid #f5c518;box-shadow:0 10px 30px rgba(0,0,0,.5);font-family:'Cinzel',serif;color:#ffd700;">
+      <p style="font-size:.9rem;margin-bottom:14px;">${msg}</p>
+      <button id="conf-y" style="padding:6px 16px;border:none;background:#f5c518;border-radius:999px;cursor:pointer;margin-right:8px;font-weight:700;font-family:'Cinzel',serif;">Sim</button>
+      <button id="conf-n" style="padding:6px 16px;border:2px solid #f5c518;background:transparent;border-radius:999px;cursor:pointer;font-weight:700;font-family:'Cinzel',serif;color:#ffd700;">Não</button></div>`;
+    document.body.appendChild(box);
+    box.querySelector("#conf-n").onclick=()=>box.remove();
+    box.querySelector("#conf-y").onclick=()=>{ box.remove(); if(typeof cb==="function")cb(); };
+  }
+
+  const rlTopBtn=$("btn-reset-level-top");
+  if(rlTopBtn) rlTopBtn.addEventListener("click",()=>{
+    if(!currentTheme){setFeedback("Entra num nível para o reiniciar.","warn");return;}
+    doConfirm("🔁 Queres reiniciar o nível atual?",()=>{ runningQueue=false; resetQueue(); loadLevel(currentLevelIndex); setFeedback("↺ Nível reiniciado!","ok"); });
+  });
+  const rlBtn=$("btn-reset-level");
+  if(rlBtn) rlBtn.addEventListener("click",()=>{ if(!currentTheme) return; runningQueue=false; resetQueue(); loadLevel(currentLevelIndex); setFeedback("↺ Nível reiniciado!","ok"); });
+  const rtBtn=$("btn-reset-theme");
+  if(rtBtn) rtBtn.addEventListener("click",()=>{
+    if(!currentTheme){setFeedback("Escolhe primeiro um tema.","warn");return;}
+    doConfirm("🗑 Queres voltar ao nível 1 deste tema?",()=>{
+      const p=loadProgress(currentCycleKey,currentThemeKey);
+      p.currentLevelIndex=0; p.levels={};
+      saveProgress(currentCycleKey,currentThemeKey,p);
+      runningQueue=false; resetQueue(); loadLevel(0); setFeedback("✨ Tema reiniciado!","ok");
+    });
+  });
+
+  
+  const muteBtn=$("btn-mute");
+  if(muteBtn) muteBtn.addEventListener("click",()=>{ isMuted=!isMuted; muteBtn.textContent=isMuted?"🔇 Sem som":"🔊 Som"; });
+
+  /* DARK MODE */
+  let isDark=true;
+  function applyDark(val){ isDark=val; document.body.classList.toggle("dark",val); const b=$("btn-dark-mode"); if(b) b.textContent=val?"☀️ Modo claro":"🌙 Modo escuro"; try{localStorage.setItem(DARK_KEY,val?"1":"0");}catch(e){} }
+  try{ const saved=localStorage.getItem(DARK_KEY); if(saved==="0") applyDark(false); else applyDark(true); }catch(e){ applyDark(true); }
+  const darkBtn=$("btn-dark-mode"); if(darkBtn) darkBtn.addEventListener("click",()=>applyDark(!isDark));
+
+  /* SUPER EASY */
+  function updateSuperEasyBtn(){ const b=$("btn-super-easy"); if(b) b.textContent=superEasy1c?"🧸 Super Fácil: ON":"🧸 Super Fácil: OFF"; }
+  try{ superEasy1c=localStorage.getItem(SUPER_EASY_KEY)==="1"; }catch(e){}
+  updateSuperEasyBtn();
+  const seBtn=$("btn-super-easy");
+  if(seBtn) seBtn.addEventListener("click",()=>{
+    const next=!superEasy1c;
+    doConfirm(next?"🧸 Ativar modo super fácil para o 1.º Ciclo?":"Voltar ao modo normal do 1.º Ciclo?",()=>{
+      superEasy1c=next; try{localStorage.setItem(SUPER_EASY_KEY,next?"1":"0");}catch(e){}
+      updateSuperEasyBtn(); updateThemeProgressUI(); updateSideProgress();
+      if(currentCycleKey==="1c"&&currentTheme){ const lvls=levelsFor("1c",currentTheme); const p=loadProgress("1c",currentThemeKey); currentLevelIndex=Math.min(p.currentLevelIndex||0,Math.max(0,lvls.length-1)); loadLevel(currentLevelIndex); }
+      setFeedback(next?"🧸 Modo super fácil ativo!":"Modo normal ativo.","ok");
+    });
+  });
+
+  /* KEYBOARD */
+  document.addEventListener("keydown",e=>{
+    if(!gameScreen||gameScreen.classList.contains("hidden")) return;
+    if(!currentTheme||!levelState||runningQueue) return;
+    if((e.key==="z"||e.key==="Z")&&!isQueueMode()){ undoLastMove(); return; }
+    const km={"ArrowUp":"MOVE","w":"MOVE","W":"MOVE","ArrowDown":"BACK","s":"BACK","S":"BACK","ArrowLeft":"LEFT","a":"LEFT","A":"LEFT","ArrowRight":"RIGHT","d":"RIGHT","D":"RIGHT","e":"COLLECT","E":"COLLECT","f":"DROP","F":"DROP"};
+    const cmd=km[e.key]; if(!cmd) return;
+    if(cmd==="BACK"&&isQueueMode()) return;
+    if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) e.preventDefault();
+    const btn=document.querySelector(`.cmd-btn[data-cmd="${cmd}"]`);
+    if(btn){ btn.classList.add("cmd-btn-active"); setTimeout(()=>btn.classList.remove("cmd-btn-active"),180); }
+    if(isQueueMode()){
+      const lm={MOVE:"⬆️ Avançar",LEFT:"↩️ Virar esq.",RIGHT:"↪️ Virar dir.",COLLECT:"✋ Recolher",DROP:"📥 Depositar"};
+      queuedCommands.push({cmd,label:lm[cmd]||cmd}); renderQueue(); setFeedback("✅ Comando adicionado.","info");
+    } else { runSingleCommand(cmd); }
+  });
+
+  /* UNDO BUTTON */
+  const undoDirect=$("btn-undo-direct");
+  if(undoDirect) undoDirect.addEventListener("click",()=>undoLastMove());
+
+  /* EXTRA LEVELS GENERATOR */
+  (function addExtraLevels(){
+    function rand(n){ return Math.floor(Math.random()*n); }
+    function makeLevel(size,diff){
+      const ic=diff>=3?4:diff===2?3:2, oc=diff>=3?10:diff===2?7:4;
+      const used=new Set();
+      function pos(){ let r,c,k; do{r=rand(size);c=rand(size);k=r+"-"+c;}while(used.has(k)); used.add(k);return[r,c]; }
+      const robot=pos(),deposit=[pos()],items=Array.from({length:ic},()=>pos()),obstacles=Array.from({length:oc},()=>pos());
+      const ds=["Médio","Difícil","Desafio"];
+      return{size,robot,items,deposit,obstacles,difficulty:ds[Math.min(diff,2)],desc:"Missão extra: recolhe todos os documentos europeus e leva ao arquivo!",_generated:true};
+    }
+    Object.keys(GAME_DATA).forEach(ck=>{
+      const cycle=GAME_DATA[ck], extra=ck==="1c"?10:5;
+      Object.values(cycle.themes).forEach(theme=>{
+        theme._designedCount=theme.levels.length;
+        for(let i=0;i<extra;i++){
+          const size=ck==="1c"?6+rand(2):7+rand(2);
+          const diff=Math.min(3,Math.floor(i/2));
+          theme.levels.push(makeLevel(size,diff));
+        }
+      });
+    });
+  })();
+
+  /* AUDIO UNLOCK */
+  document.addEventListener("click",()=>{
+    const sv=$("soundVictory"); if(!sv) return;
+    try{ sv.volume=0.01; sv.play().then(()=>{ sv.pause(); sv.currentTime=0; sv.volume=1; }).catch(()=>{}); }catch(e){}
+  },{once:true});
+
+  /* INIT */
+  showScreen(menuScreen);
+  updateSideProgress();
+  updateThemeProgressUI();
+  setFeedback("Escolhe um ciclo para explorar a história da União Europeia!","info");
+
+}); // fim DOMContentLoaded
+</script>
+</body>
+</html>
