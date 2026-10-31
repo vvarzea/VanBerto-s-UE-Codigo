@@ -1,0 +1,399 @@
+#!/usr/bin/env node
+/**
+ * verificar-niveis.js
+ * ────────────────────
+ * Ferramenta de verificação para o jogo "Europa Unida — Missões".
+ *
+ * O QUE FAZ:
+ *   1. Lê o ficheiro index.html do jogo.
+ *   2. Extrai os dados de GAME_DATA (todos os níveis) e QUIZ_DATA (perguntas).
+ *   3. Para cada nível, corre o MESMO algoritmo de busca (BFS) que o jogo usa
+ *      para confirmar que é mesmo possível resolvê-lo, e regista quantas
+ *      ações (movimentos + viragens + apanhar/depositar) a solução ótima
+ *      precisa.
+ *   4. Verifica erros estruturais óbvios: coordenadas fora da grelha,
+ *      obstáculos a sobrepor o robô/itens/depósito, obstáculos duplicados.
+ *   5. Verifica se alguma solução ótima excede o limite interno do jogo
+ *      (hoje 180 ações — ver MOVE_CAP abaixo) — se exceder, o jogo mostra
+ *      "🏁 Ótimo: —" para sempre nesse nível e a 3ª estrela fica impossível.
+ *   6. Verifica as perguntas do quiz (QUIZ_DATA): pergunta não vazia, pelo
+ *      menos 2 opções, índice da resposta certa dentro do intervalo.
+ *   7. Avisa se algum nível é MAIS FÁCIL do que o anterior do mesmo tema
+ *      (menos ações na solução ótima) — a dificuldade deve sempre subir.
+ *   8. Verifica os desafios de código (CODE_SNIFF_DATA) e os desafios de
+ *      pseudocódigo (PSEUDO_DATA) do Secundário: "code" e pergunta não
+ *      vazios, pelo menos 2 opções sem repetidas, índice da resposta certa
+ *      dentro do intervalo e, se existir, explicação ("e") não vazia.
+ *
+ * COMO USAR:
+ *   node verificar-niveis.js                  (assume "./index.html")
+ *   node verificar-niveis.js caminho/para/index.html
+ *
+ * QUANDO USAR:
+ *   Sempre que adicionares, editares ou apagares um nível ou uma pergunta
+ *   à mão no ficheiro do jogo. Não precisa de internet nem de instalar nada
+ *   — só precisa de Node.js instalado no computador.
+ *
+ * SOBRE O LIMITE DE AÇÕES (180):
+ *   Em vez de confiar em alguém ler este comentário sempre que editar o
+ *   limite, este script agora LÊ os valores reais de "cur.moves>N" dentro
+ *   do index.html e avisa sozinho se alguma cópia ficar desincronizada
+ *   (ver checkMoveCaps() abaixo). Continua a precisar que MOVE_CAP aqui
+ *   em baixo seja atualizado à mão para o valor que quiseres usar como
+ *   referência.
+ */
+
+const fs = require("fs");
+const path = require("path");
+
+const MOVE_CAP = 180; // referência para checkMoveCaps() comparar com o index.html
+
+const filePath = process.argv[2] || "./index.html";
+if (!fs.existsSync(filePath)) {
+  console.error(`❌ Não encontrei o ficheiro: ${filePath}`);
+  console.error(`   Uso: node verificar-niveis.js caminho/para/index.html`);
+  process.exit(1);
+}
+const html = fs.readFileSync(filePath, "utf-8");
+
+function extractBlock(html, startMarker) {
+  const startIdx = html.indexOf(startMarker);
+  if (startIdx === -1) return null;
+  // Conta chavetas a partir da primeira "{" depois do marcador, para
+  // encontrar exatamente onde o objeto fecha, mesmo com strings/regex lá
+  // dentro que contenham chavetas dentro de aspas (não devia acontecer
+  // nos dados deste jogo, mas jogamos pelo seguro).
+  let i = html.indexOf("{", startIdx);
+  if (i === -1) return null;
+  let depth = 0, inStr = null, esc = false;
+  for (let j = i; j < html.length; j++) {
+    const ch = html[j];
+    if (inStr) {
+      if (esc) { esc = false; }
+      else if (ch === "\\") { esc = true; }
+      else if (ch === inStr) { inStr = null; }
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === "`") { inStr = ch; continue; }
+    if (ch === "{") depth++;
+    else if (ch === "}") {
+      depth--;
+      if (depth === 0) return html.slice(i, j + 1);
+    }
+  }
+  return null;
+}
+
+function loadDataObject(html, marker, label) {
+  const objText = extractBlock(html, marker);
+  if (!objText) {
+    console.error(`❌ Não consegui encontrar "${marker}" no ficheiro — o formato do jogo pode ter mudado.`);
+    process.exit(1);
+  }
+  try {
+    // eslint-disable-next-line no-new-func
+    return Function(`"use strict"; return (${objText});`)();
+  } catch (e) {
+    console.error(`❌ Erro a interpretar ${label}:`, e.message);
+    process.exit(1);
+  }
+}
+
+// Variante que NÃO termina o programa se o bloco não existir — usada para
+// dados opcionais (como o CODE_SNIFF_DATA), que podem não existir em
+// versões mais antigas do ficheiro do jogo.
+function loadOptionalDataObject(html, marker, label) {
+  const objText = extractBlock(html, marker);
+  if (!objText) return null;
+  try {
+    // eslint-disable-next-line no-new-func
+    return Function(`"use strict"; return (${objText});`)();
+  } catch (e) {
+    console.error(`❌ Erro a interpretar ${label}:`, e.message);
+    process.exit(1);
+  }
+}
+
+const GAME_DATA = loadDataObject(html, "const GAME_DATA = {", "GAME_DATA");
+const QUIZ_DATA = loadDataObject(html, "const QUIZ_DATA={", "QUIZ_DATA")
+  || loadDataObject(html, "const QUIZ_DATA = {", "QUIZ_DATA");
+let CODE_SNIFF_DATA = loadOptionalDataObject(html, "const CODE_SNIFF_DATA={", "CODE_SNIFF_DATA");
+let PSEUDO_DATA = loadOptionalDataObject(html, "const PSEUDO_DATA={", "PSEUDO_DATA");
+
+/* ===== Mesmo algoritmo de busca (BFS) do jogo ===== */
+function computeDoorPos(base) {
+  const s = base.size, dep = base.deposit[0] || [0, 0], rob = base.robot;
+  const corners = [[0, 0], [0, s - 1], [s - 1, 0], [s - 1, s - 1]];
+  const obs = base.obstacles || [];
+  const free = corners.filter(([r, c]) => {
+    if (obs.some(o => o[0] === r && o[1] === c)) return false;
+    if (dep[0] === r && dep[1] === c) return false;
+    if (rob[0] === r && rob[1] === c) return false;
+    return true;
+  });
+  const pool = free.length ? free : corners;
+  return pool.reduce((best, p) => {
+    const d = Math.abs(p[0] - dep[0]) + Math.abs(p[1] - dep[1]);
+    const bd = Math.abs(best[0] - dep[0]) + Math.abs(best[1] - dep[1]);
+    return d > bd ? p : best;
+  }, pool[0]);
+}
+
+function bfsOptimal(base, door) {
+  door = door || computeDoorPos(base);
+  const s = base.size;
+  const isObs = (r, c) => (base.obstacles || []).some(o => o[0] === r && o[1] === c);
+  const dep = door;
+  const stKey = (rob, d, items, carry) =>
+    rob[0] + "," + rob[1] + "," + d + "," + (carry ? 1 : 0) + "|" +
+    items.filter(i => !i.collected).map(i => i.r + "," + i.c).sort().join(";");
+  const items0 = base.items.map(([r, c]) => ({ r, c, collected: false }));
+  const start = { rob: [...base.robot], d: 0, items: items0, carry: false, moves: 0 };
+  const visited = new Set([stKey(start.rob, start.d, start.items, start.carry)]);
+  const queue = [start];
+  const DR = [[-1, 0], [0, 1], [1, 0], [0, -1]];
+  let best = null, iterations = 0;
+  const MAX_ITER = 2000000;
+  while (queue.length) {
+    iterations++;
+    if (iterations > MAX_ITER) return { best: null, timedOut: true };
+    const cur = queue.shift();
+    if (best !== null && cur.moves >= best) continue;
+    const remaining = cur.items.filter(i => !i.collected);
+    const [rr, rc] = cur.rob;
+    if (remaining.length === 0 && !cur.carry && rr === door[0] && rc === door[1]) { best = cur.moves; continue; }
+    const [fdr, fdc] = DR[cur.d];
+    const [fr, fc] = [rr + fdr, rc + fdc];
+    if (fr >= 0 && fr < s && fc >= 0 && fc < s && !isObs(fr, fc)) {
+      const sk = stKey([fr, fc], cur.d, cur.items, cur.carry);
+      if (!visited.has(sk)) { visited.add(sk); queue.push({ rob: [fr, fc], d: cur.d, items: cur.items.map(i => ({ ...i })), carry: cur.carry, moves: cur.moves + 1 }); }
+    }
+    const dl = (cur.d + 3) % 4;
+    const skl = stKey(cur.rob, dl, cur.items, cur.carry);
+    if (!visited.has(skl)) { visited.add(skl); queue.push({ rob: [...cur.rob], d: dl, items: cur.items.map(i => ({ ...i })), carry: cur.carry, moves: cur.moves + 1 }); }
+    const dr2 = (cur.d + 1) % 4;
+    const skr = stKey(cur.rob, dr2, cur.items, cur.carry);
+    if (!visited.has(skr)) { visited.add(skr); queue.push({ rob: [...cur.rob], d: dr2, items: cur.items.map(i => ({ ...i })), carry: cur.carry, moves: cur.moves + 1 }); }
+    if (!cur.carry) {
+      const idx = cur.items.findIndex(i => !i.collected && i.r === rr && i.c === rc);
+      if (idx >= 0) {
+        const ni = cur.items.map(i => ({ ...i })); ni[idx].collected = true;
+        const sk = stKey(cur.rob, cur.d, ni, true);
+        if (!visited.has(sk)) { visited.add(sk); queue.push({ rob: [...cur.rob], d: cur.d, items: ni, carry: true, moves: cur.moves + 1 }); }
+      }
+    }
+    if (cur.carry && rr === dep[0] && rc === dep[1]) {
+      const sk = stKey(cur.rob, cur.d, cur.items, false);
+      if (!visited.has(sk)) { visited.add(sk); queue.push({ rob: [...cur.rob], d: cur.d, items: cur.items.map(i => ({ ...i })), carry: false, moves: cur.moves + 1 }); }
+    }
+  }
+  return { best, timedOut: false };
+}
+
+/* ===== Verificações ===== */
+let totalLevels = 0, errors = 0, warnings = 0;
+
+// Lê todas as ocorrências de "cur.moves>N" dentro do <script> do jogo
+// (uma por cada cópia do BFS: bfsOptimal, bfsOptimalAsync, bfsPathAsync...)
+// e avisa se alguma delas não corresponder a MOVE_CAP. Isto substitui o
+// aviso manual que existia antes neste ficheiro — em vez de pedir a quem
+// edita para se lembrar de atualizar 3+ sítios à mão, o script lê os
+// valores reais e diz se algum ficou por sincronizar.
+function checkMoveCaps(html) {
+  // Só as funções BFS "de fora" nos interessam como donas de cada limite —
+  // "stKey" e "runChunk" são auxiliares internas repetidas em mais do que
+  // uma destas, por isso não servem para identificar de onde vem cada cap.
+  const OUTER_FN_NAMES = ["bfsOptimal", "bfsOptimalAsync", "bfsPathAsync"];
+  const fnStarts = [];
+  OUTER_FN_NAMES.forEach(name => {
+    const re = new RegExp("function\\s+" + name + "\\s*\\(", "g");
+    let m;
+    while ((m = re.exec(html))) fnStarts.push({ name, idx: m.index });
+  });
+  fnStarts.sort((a, b) => a.idx - b.idx);
+  const capRe = /cur\.moves\s*>\s*(\d+)/g;
+  const caps = [];
+  let m2;
+  while ((m2 = capRe.exec(html))) {
+    // Ignora ocorrências dentro de comentários // — só nos interessa o
+    // limite tal como está a ser aplicado no código, não texto que o
+    // descreva (ex: um comentário que mencione "cur.moves>180" a explicar
+    // outra linha).
+    const lineStart = html.lastIndexOf("\n", m2.index) + 1;
+    const linePrefix = html.slice(lineStart, m2.index);
+    if (linePrefix.includes("//")) continue;
+    let owner = "desconhecida";
+    for (const fn of fnStarts) { if (fn.idx <= m2.index) owner = fn.name; else break; }
+    caps.push({ fn: owner, value: parseInt(m2[1], 10) });
+  }
+  if (caps.length === 0) {
+    console.log("AVISO: não encontrei nenhum \"cur.moves>N\" no index.html — o formato pode ter mudado; verifica à mão se o limite de ações ainda é aplicado.");
+    warnings++;
+    return;
+  }
+  caps.forEach(c => {
+    if (c.value !== MOVE_CAP) {
+      console.log(`AVISO cur.moves>${c.value} em "${c.fn}" não corresponde a MOVE_CAP=${MOVE_CAP} — confirma se é intencional (ex: a demonstração ter mais margem do que o cálculo de estrelas) ou se é uma cópia desincronizada.`);
+      warnings++;
+    }
+  });
+  console.log(`Limites de ações encontrados no index.html: ${caps.map(c => `${c.fn}=${c.value}`).join(", ")}  (referência MOVE_CAP=${MOVE_CAP})`);
+}
+checkMoveCaps(html);
+
+function checkLevel(ck, tk, listName, idx, lv) {
+  totalLevels++;
+  const label = `${ck}/${tk}/${listName}[${idx}]`;
+  const s = lv.size;
+  const inBounds = (r, c, tag) => {
+    if (r < 0 || r >= s || c < 0 || c >= s) {
+      console.log(`ERRO  ${label}: ${tag} (${r},${c}) fora da grelha (size=${s})`);
+      errors++;
+    }
+  };
+  inBounds(lv.robot[0], lv.robot[1], "robot");
+  if (!lv.deposit || lv.deposit.length !== 1) {
+    console.log(`ERRO  ${label}: "deposit" deve ter exatamente 1 posição`);
+    errors++;
+  } else {
+    inBounds(lv.deposit[0][0], lv.deposit[0][1], "deposit");
+  }
+  if (!lv.items || lv.items.length === 0) {
+    console.log(`ERRO  ${label}: sem itens`);
+    errors++;
+  }
+  (lv.items || []).forEach(([r, c], i) => inBounds(r, c, "item" + i));
+  (lv.obstacles || []).forEach(([r, c], i) => inBounds(r, c, "obstacle" + i));
+
+  const obsKeys = (lv.obstacles || []).map(([r, c]) => r + "," + c);
+  const obsSet = new Set(obsKeys);
+  const seen = new Set();
+  obsKeys.forEach(k => {
+    if (seen.has(k)) { console.log(`AVISO ${label}: obstáculo duplicado (${k})`); warnings++; }
+    seen.add(k);
+  });
+  const robotKey = lv.robot[0] + "," + lv.robot[1];
+  if (obsSet.has(robotKey)) { console.log(`ERRO  ${label}: robô começa sobre um obstáculo (${robotKey})`); errors++; }
+  (lv.items || []).forEach(([r, c], i) => {
+    if (obsSet.has(r + "," + c)) { console.log(`ERRO  ${label}: item${i} sobre um obstáculo (${r},${c})`); errors++; }
+  });
+  const itemSeen = new Set();
+  (lv.items || []).forEach(([r, c], i) => {
+    const k = r + "," + c;
+    if (itemSeen.has(k)) { console.log(`AVISO ${label}: item${i} está na mesma célula (${k}) que outro item — pode ser propositado, mas confirma`); warnings++; }
+    itemSeen.add(k);
+  });
+  // Nota: "deposit" sobre um obstáculo NÃO é erro — esse campo é só uma
+  // referência de distância para calcular o canto do portal (doorPos),
+  // nunca é o sítio real de entrega. Ver comentário junto a
+  // computeDoorPos() no index.html.
+
+  const door = computeDoorPos(lv);
+  const { best, timedOut } = bfsOptimal(lv, door);
+  if (timedOut) {
+    console.log(`AVISO ${label}: BFS excedeu o limite de iterações — não foi possível confirmar`);
+    warnings++;
+  } else if (best === null) {
+    console.log(`ERRO  ${label}: NÍVEL IMPOSSÍVEL — nenhuma sequência de ações resolve este nível (door=${JSON.stringify(door)})`);
+    errors++;
+  } else if (best > MOVE_CAP) {
+    console.log(`AVISO ${label}: solução ótima precisa de ${best} ações — passa o limite do jogo (${MOVE_CAP}); "Ótimo" vai ficar sempre em "—" e a 3ª estrela fica impossível`);
+    warnings++;
+  }
+  return best;
+}
+
+// Dificuldade a subir: cada nível deve precisar de MAIS ações ótimas do que o anterior.
+function checkRamp(ck, tk, listName, bests) {
+  for (let i = 1; i < bests.length; i++) {
+    if (bests[i] != null && bests[i - 1] != null && bests[i] <= bests[i - 1]) {
+      console.log(`AVISO ${ck}/${tk}/${listName}[${i}]: nível ${i + 1} (${bests[i]} ações) não é mais difícil do que o nível ${i} (${bests[i - 1]} ações)`);
+      warnings++;
+    }
+  }
+}
+
+Object.keys(GAME_DATA).forEach(ck => {
+  const cycle = GAME_DATA[ck];
+  Object.keys(cycle.themes).forEach(tk => {
+    const theme = cycle.themes[tk];
+    checkRamp(ck, tk, "levels", (theme.levels || []).map((lv, idx) => checkLevel(ck, tk, "levels", idx, lv)));
+    checkRamp(ck, tk, "superEasyLevels", (theme.superEasyLevels || []).map((lv, idx) => checkLevel(ck, tk, "superEasyLevels", idx, lv)));
+  });
+});
+
+let totalQ = 0, quizErrors = 0;
+if (QUIZ_DATA) {
+  Object.keys(QUIZ_DATA).forEach(key => {
+    const arr = QUIZ_DATA[key];
+    if (!Array.isArray(arr)) return;
+    arr.forEach((item, idx) => {
+      totalQ++;
+      const label = `quiz/${key}[${idx}]`;
+      if (typeof item.q !== "string" || !item.q.trim()) {
+        console.log(`ERRO  ${label}: pergunta vazia/inválida`); quizErrors++;
+      }
+      if (!Array.isArray(item.ops) || item.ops.length < 2) {
+        console.log(`ERRO  ${label}: precisa de pelo menos 2 opções`); quizErrors++;
+      }
+      if (typeof item.a !== "number" || item.a < 0 || (item.ops && item.a >= item.ops.length)) {
+        console.log(`ERRO  ${label}: índice da resposta certa (a=${item.a}) fora do intervalo de opções`); quizErrors++;
+      }
+    });
+  });
+} else {
+  console.log("AVISO: não encontrei QUIZ_DATA — perguntas do quiz não verificadas.");
+}
+
+// Desafios de código (CODE_SNIFF_DATA) e de pseudocódigo (PSEUDO_DATA) —
+// mesmo formato de validação do quiz (q/ops/a), mais o campo "code" que tem
+// de existir e não estar vazio. O campo "e" (explicação) é opcional, mas se
+// existir tem de ser texto não vazio.
+function checkChallenges(DATA, tag, missingMsg) {
+  let total = 0, errs = 0;
+  if (!DATA) { console.log(missingMsg); return { total, errs }; }
+  Object.keys(DATA).forEach(key => {
+    const arr = DATA[key];
+    if (!Array.isArray(arr)) return;
+    arr.forEach((item, idx) => {
+      total++;
+      const label = `${tag}/${key}[${idx}]`;
+      if (typeof item.code !== "string" || !item.code.trim()) {
+        console.log(`ERRO  ${label}: campo "code" vazio/inválido`); errs++;
+      }
+      if (typeof item.q !== "string" || !item.q.trim()) {
+        console.log(`ERRO  ${label}: pergunta vazia/inválida`); errs++;
+      }
+      if (!Array.isArray(item.ops) || item.ops.length < 2) {
+        console.log(`ERRO  ${label}: precisa de pelo menos 2 opções`); errs++;
+      } else if (new Set(item.ops).size !== item.ops.length) {
+        console.log(`ERRO  ${label}: há opções repetidas`); errs++;
+      }
+      if (typeof item.a !== "number" || item.a < 0 || (item.ops && item.a >= item.ops.length)) {
+        console.log(`ERRO  ${label}: índice da resposta certa (a=${item.a}) fora do intervalo de opções`); errs++;
+      }
+      if ("e" in item && (typeof item.e !== "string" || !item.e.trim())) {
+        console.log(`ERRO  ${label}: explicação ("e") vazia/inválida`); errs++;
+      }
+    });
+  });
+  return { total, errs };
+}
+const csRes = checkChallenges(CODE_SNIFF_DATA, "codesniff",
+  "AVISO: não encontrei CODE_SNIFF_DATA — desafios de código não verificados (pode ser normal se esta versão do jogo ainda não os tiver).");
+const totalCS = csRes.total, csErrors = csRes.errs;
+const psRes = checkChallenges(PSEUDO_DATA, "pseudo",
+  "AVISO: não encontrei PSEUDO_DATA — desafios de pseudocódigo não verificados (pode ser normal se esta versão do jogo ainda não os tiver).");
+const totalPS = psRes.total, psErrors = psRes.errs;
+
+console.log("\n=== RESUMO ===");
+console.log(`Níveis verificados: ${totalLevels}  |  Erros: ${errors}  |  Avisos: ${warnings}`);
+if (QUIZ_DATA) console.log(`Perguntas verificadas: ${totalQ}  |  Erros: ${quizErrors}`);
+if (CODE_SNIFF_DATA) console.log(`Desafios de código verificados: ${totalCS}  |  Erros: ${csErrors}`);
+if (PSEUDO_DATA) console.log(`Desafios de pseudocódigo verificados: ${totalPS}  |  Erros: ${psErrors}`);
+if (errors === 0 && quizErrors === 0 && csErrors === 0 && psErrors === 0) {
+  console.log("\n✅ Tudo em ordem — todos os níveis são possíveis e o quiz está bem formado.");
+} else {
+  console.log("\n⚠️  Há problemas por corrigir — ver detalhes acima.");
+}
+process.exit(errors > 0 || quizErrors > 0 || csErrors > 0 || psErrors > 0 ? 1 : 0);
